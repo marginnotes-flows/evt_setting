@@ -45,6 +45,7 @@ h1{font-size:26px;font-weight:800;letter-spacing:-.01em;margin:0}
 .ch h2{font-size:16px;font-weight:800;margin:0;letter-spacing:-.01em}
 .ch .ds{font-size:12px;color:var(--tert);margin-left:2px}
 .ch .sp{flex:1}
+.f>label .badge,.lb .badge{padding:3px 9px;font-size:11px}
 .badge{display:inline-block;background:var(--blue-tint);color:var(--blue-deep);border-radius:20px;padding:4px 10px;font-size:11.5px;font-weight:700}
 .chev{color:var(--tert);font-size:12px;font-weight:600}
 .card.shut .cb{display:none}
@@ -53,16 +54,17 @@ h1{font-size:26px;font-weight:800;letter-spacing:-.01em;margin:0}
 
 /* 입력 */
 .f{margin-top:14px}
-.f>label,.lb{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:6px}
+.f>label,.lb{display:flex;align-items:center;gap:6px;min-height:26px;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:6px}
 .hint{font-size:11.5px;color:var(--tert);margin-top:6px;line-height:1.55}
 input[type=text],input[type=url],textarea,select{width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--field-bg);padding:11px 13px;font-size:14px;color:var(--ink);outline:none;transition:background .15s,border-color .15s}
 input[type=text]:focus,input[type=url]:focus,textarea:focus,select:focus{border-color:#c7ccd6;background:#fff}
+select{padding-top:10px;padding-bottom:10px}   /* 글자 입력칸과 높이를 맞춘다 */
 textarea{resize:vertical;line-height:1.65;min-height:64px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .row2 .f{min-width:0}
 @media(max-width:520px){.row2{grid-template-columns:1fr}}
-.cf{display:flex;align-items:center;gap:10px;background:var(--field-bg);border:1.5px solid var(--line);border-radius:12px;padding:6px 10px}
-.cf input[type=color]{width:34px;height:34px;border:0;padding:0;background:none;cursor:pointer;flex:none}
+.cf{display:flex;align-items:center;gap:10px;background:var(--field-bg);border:1.5px solid var(--line);border-radius:12px;padding:4px 10px}
+.cf input[type=color]{width:30px;height:30px;border:0;padding:0;background:none;cursor:pointer;flex:none}
 .cf input[type=color]::-webkit-color-swatch-wrapper{padding:0}
 .cf input[type=color]::-webkit-color-swatch{border:1px solid rgba(0,0,0,.08);border-radius:10px}
 .cf input[type=color]::-moz-color-swatch{border:1px solid rgba(0,0,0,.08);border-radius:10px}
@@ -139,11 +141,11 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
 .addrow{display:flex;gap:8px;margin-top:8px}
 .addrow input{flex:1}
 .xvset,.ivset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
-.xvset .ivh,.ivset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.xvset .ivh,.ivset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:0}
 .xvset .ivh b,.ivset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
 .xvset .ivh .sp,.ivset .ivh .sp{flex:1}
 .xvset input,.xvset textarea,.ivset input,.ivset textarea{background:#fff}
-.xvset .f:first-of-type,.ivset .f:first-of-type{margin-top:0}
+.xvset>.f:first-of-type,.ivset>.f:first-of-type{margin-top:0}
 .xvset .det{background:#fff}
 .mdl{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(28,28,30,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
 .mbox{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:20px;width:100%;max-width:640px;max-height:92vh;overflow:auto}
