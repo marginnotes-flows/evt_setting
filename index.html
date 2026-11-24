@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>교보 이벤트 생성기 (전체 모듈)</title>
+<title>🕹️이벤트 생성기</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 :root{
@@ -127,82 +127,24 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(60px);background:#1c1c1e;color:#fff;border-radius:20px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:99;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .foot{text-align:center;color:var(--tert);font-size:11.5px;margin-top:22px}
+/* 여러 모듈이 함께 쓰는 편집 UI (작은 동그란 버튼 · 이미지 목록 · 세트 카드) */
 .mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
 .mini.x{color:var(--red)}
-.xvset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
-.xvset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.xvset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
-.xvset .ivh .sp{flex:1}
-.xvset input,.xvset textarea{background:#fff}
-.xvset .f:first-of-type{margin-top:0}
+.mini.w{width:auto;padding:0 11px;border-radius:15px;font-weight:700;font-size:12px}
+.gl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.gi{display:flex;align-items:center;gap:10px;background:var(--field-bg);border-radius:14px;padding:8px 10px}
+.gi .th{width:63px;height:42px;border-radius:8px}
+.gi .gn{flex:1;min-width:0;font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gi .no2{font-size:12px;font-weight:800;color:var(--tert);width:16px;text-align:center}
+.addrow{display:flex;gap:8px;margin-top:8px}
+.addrow input{flex:1}
+.xvset,.ivset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.xvset .ivh,.ivset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.xvset .ivh b,.ivset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
+.xvset .ivh .sp,.ivset .ivh .sp{flex:1}
+.xvset input,.xvset textarea,.ivset input,.ivset textarea{background:#fff}
+.xvset .f:first-of-type,.ivset .f:first-of-type{margin-top:0}
 .xvset .det{background:#fff}
-
-.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
-.mini.x{color:var(--red)}
-.xvset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
-.xvset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.xvset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
-.xvset .ivh .sp{flex:1}
-.xvset input,.xvset textarea{background:#fff}
-.xvset .f:first-of-type{margin-top:0}
-.xvset .det{background:#fff}
-
-.gl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.gi{display:flex;align-items:center;gap:10px;background:var(--field-bg);border-radius:14px;padding:8px 10px}
-.gi .th{width:63px;height:42px;border-radius:8px}
-.gi .gn{flex:1;min-width:0;font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gi .no2{font-size:12px;font-weight:800;color:var(--tert);width:16px;text-align:center}
-.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
-.mini.x{color:var(--red)}
-.mini.w{width:auto;padding:0 11px;border-radius:15px;font-weight:700;font-size:12px}
-.addrow{display:flex;gap:8px;margin-top:8px}
-.addrow input{flex:1}
-.ivset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
-.ivset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.ivset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
-.ivset .ivh .sp{flex:1}
-.ivset textarea{background:#fff}
-.ivset .f:first-of-type{margin-top:0}
-
-.gl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.gi{display:flex;align-items:center;gap:10px;background:var(--field-bg);border-radius:14px;padding:8px 10px}
-.gi .th{width:63px;height:42px;border-radius:8px}
-.gi .gn{flex:1;min-width:0;font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gi .no2{font-size:12px;font-weight:800;color:var(--tert);width:16px;text-align:center}
-.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
-.mini.x{color:var(--red)}
-.mini.w{width:auto;padding:0 11px;border-radius:15px;font-weight:700;font-size:12px}
-.addrow{display:flex;gap:8px;margin-top:8px}
-.addrow input{flex:1}
-.xvset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
-.xvset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.xvset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
-.xvset .ivh .sp{flex:1}
-.xvset textarea{background:#fff}
-.xvset .f:first-of-type{margin-top:0}
-
-.gl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.gi{display:flex;align-items:center;gap:10px;background:var(--field-bg);border-radius:14px;padding:8px 10px}
-.gi .th{width:63px;height:42px;border-radius:8px}
-.gi .gn{flex:1;min-width:0;font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gi .no2{font-size:12px;font-weight:800;color:var(--tert);width:16px;text-align:center}
-.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
-.mini.x{color:var(--red)}
-.mini.w{width:auto;padding:0 11px;border-radius:15px;font-weight:700;font-size:12px}
-.addrow{display:flex;gap:8px;margin-top:8px}
-.addrow input{flex:1}
-
-.gl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.gi{display:flex;align-items:center;gap:10px;background:var(--field-bg);border-radius:14px;padding:8px 10px}
-.gi .th{width:63px;height:42px;border-radius:8px}
-.gi .gn{flex:1;min-width:0;font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gi .no2{font-size:12px;font-weight:800;color:var(--tert);width:16px;text-align:center}
-.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
-.mini.x{color:var(--red)}
-.mini.w{width:auto;padding:0 11px;border-radius:15px;font-weight:700;font-size:12px}
-.addrow{display:flex;gap:8px;margin-top:8px}
-.addrow input{flex:1}
-
 .mdl{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(28,28,30,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
 .mbox{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:20px;width:100%;max-width:640px;max-height:92vh;overflow:auto}
 .mfrw{display:flex;justify-content:center;margin-top:14px}
@@ -214,7 +156,13 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
 .sl2 input[type=range]{width:100%;accent-color:#2f6fed}
 .sl2 output{text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--tert)}
 
+#pickList{display:grid;gap:18px}
+.pkg{align-self:start;min-width:0;break-inside:avoid}
+.pkgh{display:flex;align-items:center;gap:8px;margin:0 4px 8px}
+.pkgt{font-size:12.5px;font-weight:800;color:var(--sub)}
+.pkgn{font-size:11.5px;color:var(--tert)}
 .pk{display:flex;align-items:flex-start;gap:12px;background:var(--field-bg);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.pk:last-child{margin-bottom:0}
 .pk input{margin:2px 0 0;width:18px;height:18px;accent-color:#2f6fed;flex:none}
 .pk .pkb{flex:1;min-width:0}
 .pk .pkt{display:block;font-size:14px;font-weight:700;color:var(--ink)}
@@ -236,13 +184,16 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
   .nav{position:sticky;top:0;margin:0 0 14px}
   .foot{grid-area:foot}
   .nav [data-tab=edit],#bGoPrev{display:none}
+  #panePick{grid-column:1 / -1}
+  #pickList{display:block;columns:330px;column-gap:18px}
+  .pkg{margin-bottom:18px}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div id="hdr">
-    <h1>교보 이벤트 생성기 (전체 모듈)</h1>
+    <h1>🕹️이벤트 생성기</h1>
     <p class="lead">모든 이미지는 링크로 들어가요.<br>텍스트 강조는 **텍스트 강조** 예요.</p>
     <div class="bar" id="hdrBar" style="margin-top:12px"><button type="button" class="pill" id="bPick2">← 영역 다시 고르기</button></div>
   </div>
@@ -275,7 +226,7 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
 
   <div id="panePick" class="hide">
     <div class="card">
-      <div class="ch" style="cursor:default"><span class="badge">1단계</span><h2>넣을 영역 고르기</h2></div>
+      <div class="ch" style="cursor:default"><h2>넣을 영역 고르기</h2></div>
       <div class="cb">
         <div class="hint" style="margin-top:8px">이번 이벤트에 넣을 영역을 고르세요. 고른 순서가 아니라 아래 목록 순서대로 페이지에 들어가요. 나중에 '영역 다시 고르기'로 바꿀 수 있어요.</div>
         <div id="pickList" style="margin-top:14px"></div>
@@ -364,28 +315,11 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
    · 출력 HTML 은 .rcv 로 스코프, 스크립트 없이 동작 (사은품 롤링도 CSS 애니메이션)
    ═══════════════════════════════════════════════ */
 const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
 const KEY = 'kyobo_gen_all';
 const PC_W = 3000, MO_W = 750, NS_PREFIX = 'evt', TITLE_SUFFIX = '이벤트', SAVE_NAME = '이벤트';
 /* 사용 가능한 폰트 — 교보 페이지(공통 CSS)에서 제공되는 폰트는 link 없이 이름만 쓰고,
    Google Fonts 폰트는 선택했을 때만 link 가 코드에 자동으로 들어갑니다. */
-/* 제목 옆에 살짝 겹치는 꾸밈 도형 — 헤더 모듈(이름에 '헤더')과 제목이 없는 영역에는 들어가지 않는다 */
-const SHAPE_SVG = {
-  heart: "%3Cpath fill='@C' d='M12 21C7 17.5 2 13.9 2 9.3A5.3 5.3 0 0 1 12 6.3 5.3 5.3 0 0 1 22 9.3C22 13.9 17 17.5 12 21Z'/%3E",
-  star:  "%3Cpath fill='@C' d='M12 2 15.1 8.6 22 9.6 17 14.6 18.2 21.8 12 18.4 5.8 21.8 7 14.6 2 9.6 8.9 8.6Z'/%3E",
-  flower:"%3Cg fill='@C'%3E%3Ccircle cx='12' cy='6.2' r='4.4'/%3E%3Ccircle cx='12' cy='17.8' r='4.4'/%3E%3Ccircle cx='6.2' cy='12' r='4.4'/%3E%3Ccircle cx='17.8' cy='12' r='4.4'/%3E%3Ccircle cx='12' cy='12' r='4.6'/%3E%3C/g%3E",
-  leaf:  "%3Cpath fill='@C' d='M21 3C10 3 3 9 3 18c0 1 0 2 .3 3C8 14 13 11 19 10c-5 2-9 6-12 12 10 1 15-5 15-19Z'/%3E"
-};
-const SHAPES = {
-  none:   ['없음', ''],
-  circle: ['원형', 'border-radius:50%'],
-  square: ['둥근 네모', 'border-radius:24%'],
-  heart:  ['하트', 'svg'],
-  star:   ['별', 'svg'],
-  flower: ['꽃', 'svg'],
-  leaf:   ['잎', 'svg']
-};
-const SHAPE_OPTS = Object.keys(SHAPES).map(k => [k, SHAPES[k][0]]);
 const FONTS = [
   ['pretendard', 'Pretendard (기본)', "Pretendard,'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", ''],
   ['gmarket',    'GmarketSansMedium', "GmarketSansMedium,Pretendard,'Apple SD Gothic Neo',sans-serif", ''],
@@ -404,6 +338,139 @@ function registerModule(m){ MODS.push(m); }
 function registerFinder(k, f){ FINDERS[k] = f; }
 
 /* ── 기본값 (맞춤법 검수 완료된 샘플 문구) ── */
+/* ═══════════════════════════════════════════════════════════════
+   [텍스트 헤더]  id: header_text
+   이미지 없이 글자만으로 만드는 단순 헤더
+   꼬리표 · 서브 제목 · 제목 · 구분선 · 상세 텍스트 · 기간 안내 (각각 끌 수 있음)
+   정렬(가운데/왼쪽) · 제목 크기 3단계 · 영역 높이 3단계 · 배경 2색 그라데이션
+   PC 3000px(중앙 1195px 안) · 모바일 750px
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+const thHas = s => lines(s.thTitle).length > 0 || lines(s.thSub).length > 0 || paras(s.thBody).length > 0 ||
+  (s.use_thTag && lines(s.thTag).length > 0) || (s.use_thDate && lines(s.thDate).length > 0);
+function thBlock(s){
+  const tag = s.use_thTag && lines(s.thTag).length
+    ? `<p class="th-tg th-tg-${s.thTagStyle}">${lines(s.thTag).map(esc).join(' ')}</p>` : '';
+  const sub = s.use_thSub && lines(s.thSub).length
+    ? `<p class="th-sub">${lines(s.thSub).map(esc).join('<br>')}</p>` : '';
+  const tt = lines(s.thTitle).length
+    ? `<h2 class="th-tt th-s-${s.thSize}">${lines(s.thTitle).map(md).join('<br>')}</h2>` : '';
+  const ln = s.use_thLine ? '<div class="th-ln"></div>' : '';
+  const bd = s.use_thBody && paras(s.thBody).length ? `<div class="th-bd">${pHTML(s.thBody)}</div>` : '';
+  const dt = s.use_thDate && lines(s.thDate).length
+    ? `<p class="th-dt">${lines(s.thDate).map(esc).join('<br>')}</p>` : '';
+  const bg = s.thBg1 === s.thBg2 ? s.thBg1
+    : `linear-gradient(${s.thDir === 'r' ? '135deg' : s.thDir === 'u' ? '0deg' : '180deg'},${s.thBg1} 0%,${s.thBg2} 100%)`;
+  return `<div class="sec th th-p-${s.thPad} th-a-${s.thAlign}" style="background:${bg}"><div class="th-in">
+  ${tag}${sub}${tt}${ln}${bd}${dt}
+</div></div>`;
+}
+registerModule({
+  id: 'header_text',
+  name: '텍스트 헤더',
+  group: '헤더',
+  defaults: {
+    use_th: true, thBg1: '#f3efe7', thBg2: '#ffffff', thDir: 'd', thC: 'k',
+    thAlign: 'c', thSize: 'm', thPad: 'm',
+    use_thTag: true, thTag: '교보문고 단독', thTagStyle: 'f',
+    use_thSub: true, thSub: '올겨울, 다시 꺼내 읽고 싶은 책',
+    thTitle: '**깊이 읽는** 계절',
+    use_thLine: true,
+    use_thBody: true,
+    thBody: '한 해의 끝에서 천천히 읽기 좋은 책들을 모았습니다.\n마음이 오래 머무는 문장을 만나 보세요.',
+    use_thDate: true, thDate: '2026. 12. 1.(화) ~ 12. 31.(수)'
+  },
+  schema: {
+    id: 'th', t: '텍스트 헤더', d: '이미지 없이 글자만 쓰는 헤더예요. 스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_th',
+    f: [
+      {t:'row', f:[{t:'color', k:'thBg1', l:'배경색 ①'}, {t:'color', k:'thBg2', l:'배경색 ②'}]},
+      {t:'row', f:[
+        {t:'sel', k:'thDir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
+        {t:'tc', k:'thC', l:'글자색'}
+      ]},
+      {t:'row', f:[
+        {t:'sel', k:'thAlign', l:'정렬', o:[['c','가운데'],['l','왼쪽']]},
+        {t:'sel', k:'thSize', l:'제목 크기', o:[['s','작게'],['m','보통'],['l','크게']]}
+      ]},
+      {t:'sel', k:'thPad', l:'영역 높이', o:[['s','낮게'],['m','보통'],['l','높게']], h:'위아래 여백이 함께 조절돼요.'},
+      {t:'sw', k:'use_thTag', l:'꼬리표 사용', h:'제목 위에 들어가는 작은 라벨이에요. 예: 교보문고 단독, Re-cover'},
+      {t:'row', f:[
+        {t:'text', k:'thTag', l:'꼬리표 문구', ph:'교보문고 단독'},
+        {t:'sel', k:'thTagStyle', l:'꼬리표 모양', o:[['f','채움'],['o','테두리']], h:'공통 설정의 강조 색상을 따라가요.'}
+      ]},
+      {t:'sw', k:'use_thSub', l:'서브 제목 사용'},
+      {t:'area', k:'thSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
+      {t:'area', k:'thTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · **문구**로 감싸면 강조 색으로 표시돼요.'},
+      {t:'sw', k:'use_thLine', l:'제목 아래 구분선 사용'},
+      {t:'sw', k:'use_thBody', l:'상세 텍스트 사용'},
+      {t:'area', k:'thBody', l:'상세 텍스트', r:4, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게'},
+      {t:'sw', k:'use_thDate', l:'기간 안내 사용'},
+      {t:'text', k:'thDate', l:'기간 안내 문구', ph:'2026. 12. 1.(화) ~ 12. 31.(수)', h:'맨 아래에 작은 글씨로 들어가요.'}
+    ]
+  },
+  has: s => thHas(s),
+  render: (s, m) => thBlock(s),
+  vars: s => `--c-th:${TC[s.thC]};--th-on:${onColor(s.pt)}`,
+  css: {
+    shared: `
+.rcv .th-in{margin:0 auto;color:var(--c-th)}
+.rcv .th-a-c .th-in{text-align:center}
+.rcv .th-a-l .th-in{text-align:left}
+.rcv .th-tg{display:inline-block;font-weight:700;font-family:var(--f-head);border-radius:999px;letter-spacing:.01em}
+.rcv .th-tg-f{background:var(--pt);color:var(--th-on)}
+.rcv .th-tg-o{border:1.5px solid var(--pt);color:var(--pt)}
+.rcv .th-sub{opacity:.75}
+.rcv .th-tt{font-weight:700;letter-spacing:-.03em}
+.rcv .th-tt b{color:var(--pt)}
+.rcv .th-ln{background:currentColor;opacity:.28}
+.rcv .th-a-c .th-ln{margin-left:auto;margin-right:auto}
+.rcv .th-bd{opacity:.9}
+.rcv .th-bd b{font-weight:700;color:var(--pt)}
+.rcv .th-bd p+p{margin-top:.8em}
+.rcv .th-dt{opacity:.62;font-variant-numeric:tabular-nums}
+`,
+    pc: `
+.rcv .th-in{width:1195px;max-width:96%}
+.rcv .th-p-s{padding:72px 0 76px}
+.rcv .th-p-m{padding:110px 0 116px}
+.rcv .th-p-l{padding:150px 0 158px}
+.rcv .th-tg{font-size:15px;line-height:1.4;padding:7px 18px}
+.rcv .th-sub{font-size:20px;line-height:1.5;margin-top:22px}
+.rcv .th-tt{margin-top:16px}
+.rcv .th-s-s{font-size:38px;line-height:1.38}
+.rcv .th-s-m{font-size:48px;line-height:1.34}
+.rcv .th-s-l{font-size:60px;line-height:1.3}
+.rcv .th-ln{width:54px;height:2px;margin-top:34px}
+.rcv .th-bd{font-size:19px;line-height:1.8;margin-top:32px}
+.rcv .th-dt{font-size:16px;line-height:1.6;margin-top:30px}
+`,
+    mo: `
+.rcv .th-in{width:84%;min-width:0}
+.rcv .th-p-s{padding:70px 0 74px}
+.rcv .th-p-m{padding:104px 0 110px}
+.rcv .th-p-l{padding:142px 0 150px}
+.rcv .th-tg{font-size:21px;line-height:1.4;padding:9px 24px}
+.rcv .th-sub{font-size:26px;line-height:1.5;margin-top:26px}
+.rcv .th-tt{margin-top:18px}
+.rcv .th-s-s{font-size:44px;line-height:1.38}
+.rcv .th-s-m{font-size:54px;line-height:1.34}
+.rcv .th-s-l{font-size:66px;line-height:1.3}
+.rcv .th-ln{width:70px;height:2px;margin-top:36px}
+.rcv .th-bd{font-size:26px;line-height:1.8;margin-top:34px}
+.rcv .th-dt{font-size:22px;line-height:1.6;margin-top:32px}
+`
+  },
+  validate(s, o){
+    if(s.use_th && !thHas(s)){ o.push(['i', '텍스트 헤더가 비어 있어 표시되지 않아요.']); return; }
+    if(!s.use_th) return;
+    if(!lines(s.thTitle).length) o.push(['w', '제목이 비어 있어요. 헤더에는 제목을 넣어 주시길 권해 드려요.']);
+    o.push(['g', `텍스트 헤더 · ${s.thAlign === 'c' ? '가운데' : '왼쪽'} 정렬 · 제목 ${({s:'작게',m:'보통',l:'크게'})[s.thSize]} · 높이 ${({s:'낮게',m:'보통',l:'높게'})[s.thPad]}`]);
+    o.push(['g', '이미지를 쓰지 않아 디자인팀 이미지 제작 없이 바로 등록할 수 있어요.']);
+  },
+  eventTitle: s => lines(s.thTitle).join(' ').replace(/\*\*/g, '')
+});
+})();
+
 /* ═══════════════════════════════════════════════════════════════
    [도서 1종 강조 헤더]  id: header_book
    서브 제목 · 제목 · 상세 텍스트(끌 수 있음) + 도서 표지(링크)
@@ -432,6 +499,7 @@ function bhBlock(s){
 registerModule({
   id: 'header_book',
   name: '도서 1종 강조 헤더',
+  group: '헤더',
   defaults: {
     use_bh: true, bhBg1: '#eef3f8', bhBg2: '#ffffff', bhDir: 'd', bhC: 'k', bhSize: 'm',
     bhSub: '올해 가장 많이 읽힌 한 권',
@@ -534,6 +602,7 @@ function ahBlock(s){
 registerModule({
   id: 'header_author',
   name: '작가 1명 강조 헤더',
+  group: '헤더',
   defaults: {
     use_ah: true, ahBg1: '#f3efe8', ahBg2: '#ffffff', ahDir: 'd', ahC: 'k', ahSize: 'm',
     ahShape: 'arch', ahBd: '', ahBdW: '0',
@@ -855,6 +924,7 @@ const SCHEMA = {
 registerModule({
   id: 'header_recover',
   name: '헤더(리커버)',
+  group: '헤더',
   features: ['finder'],
   defaults: {
  "hdTitleC": "w",
@@ -1009,6 +1079,7 @@ function biBlock(s){
 registerModule({
   id: 'book_intro',
   name: '책 소개 영역',
+  group: '도서 소개',
   defaults: {
  "biC": "k",
  "biBg": "#ffffff",
@@ -1168,56 +1239,6 @@ function p1Cut(t, n){
   }
   return out.join('').replace(/\s+$/, '') + '…';
 }
-/* 버튼 배경(강조 색) 위에 올릴 글자색을 밝기로 고른다 */
-function p1On(hex){
-  const h = String(hex || '').replace('#', '');
-  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
-  const n = parseInt(v.slice(0, 6), 16);
-  if(!isFinite(n)) return '#ffffff';
-  const f = c => (c = c/255) <= .03928 ? c/12.92 : Math.pow((c + .055)/1.055, 2.4);
-  const L = .2126*f(n>>16&255) + .7152*f(n>>8&255) + .0722*f(n&255);
-  return L > .55 ? '#1c1c1e' : '#ffffff';
-}
-/* 버튼 줄 나누기 — 한 줄에 다 들어가면 한 줄, 넘치면 줄 수를 최소로 하고 되도록 고르게 나눈다
-   (7개 → 3 + 4 처럼 윗줄이 적고 아랫줄이 많게) · 모바일에서 줄이 늘어나면 버튼을 한 단계 작게 써서 한 줄에 더 담는다 */
-const P1_M = {
-  pc:   {fs:18, pad:93, npad:50, gap:12, avail:1147},
-  mo:   {fs:24, pad:100, npad:50, gap:12, avail:675},
-  moSm: {fs:22, pad:81,  npad:40, gap:10, avail:675}
-};
-function p1Tw(t, fs){
-  let w = 0;
-  for(const ch of String(t || '')) w += (ch.charCodeAt(0) < 256 ? .56 : 1);
-  return w * fs;
-}
-function p1Split(n, r){
-  const base = Math.floor(n/r), rem = n % r, out = [];
-  for(let i = 0; i < r; i++) out.push(i < r - rem ? base : base + 1);
-  return out.filter(x => x > 0);
-}
-function p1Rows(names, mk, photo){
-  const M = P1_M[mk] || P1_M.mo;
-  const w = names.map(n => (photo ? M.pad : M.npad) + p1Tw(n, M.fs));
-  const fits = r => {
-    let i = 0;
-    return p1Split(names.length, r).every(c => {
-      let sum = M.gap * (c - 1);
-      for(let k = 0; k < c; k++) sum += w[i++];
-      return sum <= M.avail;
-    });
-  };
-  let r = 1;
-  while(r < names.length && !fits(r)) r++;
-  return p1Split(names.length, r);
-}
-function p1Bar(names, m, photo){
-  const rows = p1Rows(names, m ? 'mo' : 'pc', photo);
-  if(m && rows.length > 1){
-    const r2 = p1Rows(names, 'moSm', photo);
-    if(r2.length < rows.length) return {rows: r2, sm: true};
-  }
-  return {rows, sm: false};
-}
 const p1Pick = s => p1Items(s).filter(p1Full);
 const p1Tab = s => s.p1View === 'tb' && p1Pick(s).length > 0;
 function p1Who(s, x){
@@ -1278,7 +1299,7 @@ function p1Block(s, m){
       const ph = s.p1Photo ? `<div class="p1-tph p1-f-${s.p1Shape}">${src ? `<img src="${escA(src)}" alt="${escA(nm)}">` : '<span class="p1-pe"></span>'}</div>` : '';
       return `<label class="p1-tbt p1-tbt${i+1}" for="__NS__-p1t${i+1}">${ph}<span class="p1-tbn">${esc(nm)}</span></label>`;
     });
-    const bar = p1Bar(nms, m, !!s.p1Photo);
+    const bar = btnRows(nms, m, !!s.p1Photo);
     let at = 0;
     const rows = bar.rows.map(c => `<div class="p1-trw">${btn.slice(at, at += c).join('')}</div>`).join('');
     const tb = L.length > 1 ? `<div class="p1-tb${s.p1Photo ? '' : ' p1-np'}${bar.sm ? ' p1-sm' : ''}">${rows}</div>` : '';
@@ -1398,6 +1419,7 @@ document.addEventListener('click', e => {
 registerModule({
   id: 'book_pick_one',
   name: '추천 도서(1인 1권)',
+  group: '추천 · 후기',
   defaults: {
     use_p1: true, p1View: 'gr', p1Bg1: '#f6f3ec', p1Bg2: '#ffffff', p1Dir: 'd', p1C: 'k',
     use_p1Sub: true, p1Sub: '한 사람이 한 권씩',
@@ -1425,7 +1447,7 @@ registerModule({
   schema: SCHEMA,
   has: s => p1Has(s),
   render: (s, m) => p1Block(s, m),
-  vars: s => `--c-p1:${TC[s.p1C]};--c-p1cd:${TC[s.p1CardC]};--p1-cd:${s.use_p1Card ? s.p1Card : 'transparent'};--p1-on:${p1On(s.pt)};--p1-bd:${/^#[0-9a-fA-F]{3,8}$/.test((s.p1Bd||'').trim()) ? s.p1Bd.trim() : 'transparent'}`,
+  vars: s => `--c-p1:${TC[s.p1C]};--c-p1cd:${TC[s.p1CardC]};--p1-cd:${s.use_p1Card ? s.p1Card : 'transparent'};--p1-on:${onColor(s.pt)};--p1-bd:${/^#[0-9a-fA-F]{3,8}$/.test((s.p1Bd||'').trim()) ? s.p1Bd.trim() : 'transparent'}`,
   css: {
     shared: `
 .rcv .p1-in{margin:0 auto}
@@ -1595,7 +1617,7 @@ registerModule({
       : `추천 카드 ${L.length}개 (최대 ${P1_MAX}개) · PC ${s.p1Cols}단 / 모바일 ${s.p1MoCols}단`]);
     if(p1Tab(s)){
       o.push(['g', '카드 영역은 가장 내용이 많은 카드에 맞춰 높이가 고정돼요.']);
-      const rw = p1Bar(L.map((x, i) => String(x.who || '').trim() || String(x.title || '').trim() || `추천 ${i+1}`), true, !!s.p1Photo);
+      const rw = btnRows(L.map((x, i) => String(x.who || '').trim() || String(x.title || '').trim() || `추천 ${i+1}`), true, !!s.p1Photo);
       o.push(['g', rw.rows.length > 1
         ? `모바일 버튼은 ${rw.rows.length}줄(${rw.rows.join(' + ')}개)로 고르게 나뉘어요.`
         : '모바일 버튼이 한 줄에 모두 들어가요.']);
@@ -1658,56 +1680,6 @@ function pmLink(b){
   if(/:\/\//.test(v)) return v;
   return /^[Ss]\d{6,}$/.test(v) ? `https://product.kyobobook.co.kr/detail/${v.toUpperCase()}` : '';
 }
-/* 버튼 배경(강조 색) 위에 올릴 글자색을 밝기로 고른다 */
-function pmOn(hex){
-  const h = String(hex || '').replace('#', '');
-  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
-  const n = parseInt(v.slice(0, 6), 16);
-  if(!isFinite(n)) return '#ffffff';
-  const f = c => (c = c/255) <= .03928 ? c/12.92 : Math.pow((c + .055)/1.055, 2.4);
-  const L = .2126*f(n>>16&255) + .7152*f(n>>8&255) + .0722*f(n&255);
-  return L > .55 ? '#1c1c1e' : '#ffffff';
-}
-/* 버튼 줄 나누기 — 한 줄에 다 들어가면 한 줄, 넘치면 줄 수를 최소로 하고 되도록 고르게 나눈다
-   (7개 → 3 + 4 처럼 윗줄이 적고 아랫줄이 많게) · 모바일에서 줄이 늘어나면 버튼을 한 단계 작게 써서 한 줄에 더 담는다 */
-const PM_M = {
-  pc:   {fs:18, pad:93, npad:50, gap:12, avail:1147},
-  mo:   {fs:24, pad:100, npad:50, gap:12, avail:675},
-  moSm: {fs:22, pad:81,  npad:40, gap:10, avail:675}
-};
-function pmTw(t, fs){
-  let w = 0;
-  for(const ch of String(t || '')) w += (ch.charCodeAt(0) < 256 ? .56 : 1);
-  return w * fs;
-}
-function pmSplit(n, r){
-  const base = Math.floor(n/r), rem = n % r, out = [];
-  for(let i = 0; i < r; i++) out.push(i < r - rem ? base : base + 1);
-  return out.filter(x => x > 0);
-}
-function pmRows(names, mk, photo){
-  const M = PM_M[mk] || PM_M.mo;
-  const w = names.map(n => (photo ? M.pad : M.npad) + pmTw(n, M.fs));
-  const fits = r => {
-    let i = 0;
-    return pmSplit(names.length, r).every(c => {
-      let sum = M.gap * (c - 1);
-      for(let k = 0; k < c; k++) sum += w[i++];
-      return sum <= M.avail;
-    });
-  };
-  let r = 1;
-  while(r < names.length && !fits(r)) r++;
-  return pmSplit(names.length, r);
-}
-function pmBar(names, m, photo){
-  const rows = pmRows(names, m ? 'mo' : 'pc', photo);
-  if(m && rows.length > 1){
-    const r2 = pmRows(names, 'moSm', photo);
-    if(r2.length < rows.length) return {rows: r2, sm: true};
-  }
-  return {rows, sm: false};
-}
 const pmFull = p => [p.who, p.role, p.word, p.books].some(v => String(v || '').trim());
 const pmList = s => pmPpl(s).filter(pmFull);
 const pmHas = s => lines(s.pmTitle).length > 0 || lines(s.pmSub).length > 0 || paras(s.pmDesc).length > 0 ||
@@ -1752,7 +1724,7 @@ function pmBlock(s, m){
     const rd = P.map((p, i) => `<input class="pm-r" type="radio" name="__NS__-pmtab" id="__NS__-pmt${i+1}"${i ? '' : ' checked'}>`).join('');
     const nms = P.map((p, i) => String(p.who || '').trim() || `추천 ${i+1}`);
     const btn = nms.map((nm, i) => `<label class="pm-tbt pm-tbt${i+1}" for="__NS__-pmt${i+1}">${pmPhoto(s, P[i], 'pm-tph')}<span class="pm-tbn">${esc(nm)}</span></label>`);
-    const bar = pmBar(nms, m, !!s.pmPhoto);
+    const bar = btnRows(nms, m, !!s.pmPhoto);
     let at = 0;
     const rows = bar.rows.map(c => `<div class="pm-trw">${btn.slice(at, at += c).join('')}</div>`).join('');
     const tb = P.length > 1 ? `<div class="pm-tb${s.pmPhoto ? '' : ' pm-np'}${bar.sm ? ' pm-sm' : ''}">${rows}</div>` : '';
@@ -1859,6 +1831,7 @@ const SAMPLE = '9791194273448 | 첫 번째 도서명 | 지은이 지음 · 출�
 registerModule({
   id: 'book_pick_multi',
   name: '추천 도서(1인 여러 권)',
+  group: '추천 · 후기',
   defaults: {
     use_pm: true, pmView: 'tb', pmBg1: '#ffffff', pmBg2: '#f4f1ea', pmAlt: true, pmC1: 'k', pmC2: 'k',
     use_pmSub: true, pmSub: '한 사람이 고른 여러 권',
@@ -1882,7 +1855,7 @@ registerModule({
   schema: SCHEMA,
   has: s => pmHas(s),
   render: (s, m) => pmBlock(s, m),
-  vars: s => `--c-pm1:${TC[s.pmC1]};--c-pm2:${TC[s.pmC2]};--pm-p2:${s.pmBg2};--pm-on:${pmOn(s.pt)};--pm-bd:${/^#[0-9a-fA-F]{3,8}$/.test((s.pmBd||'').trim()) ? s.pmBd.trim() : 'transparent'}`,
+  vars: s => `--c-pm1:${TC[s.pmC1]};--c-pm2:${TC[s.pmC2]};--pm-p2:${s.pmBg2};--pm-on:${onColor(s.pt)};--pm-bd:${/^#[0-9a-fA-F]{3,8}$/.test((s.pmBd||'').trim()) ? s.pmBd.trim() : 'transparent'}`,
   css: {
     shared: `
 .rcv .pm-in{margin:0 auto}
@@ -2036,7 +2009,7 @@ registerModule({
       o.push(['g', `버튼으로 전환 · 버튼 ${L.length}개 (자바스크립트 없이 CSS 로만 동작해요)`]);
       o.push(['g', '추천 도서 영역은 가장 내용이 많은 추천인에 맞춰 높이가 고정돼요.']);
       if(noName) o.push(['w', `${noName}명에 이름이 없어 버튼이 '추천 1' 처럼 표시돼요.`]);
-      const rw = pmBar(L.map((p, i) => String(p.who || '').trim() || `추천 ${i+1}`), true, !!s.pmPhoto);
+      const rw = btnRows(L.map((p, i) => String(p.who || '').trim() || `추천 ${i+1}`), true, !!s.pmPhoto);
       o.push(['g', rw.rows.length > 1
         ? `모바일 버튼은 ${rw.rows.length}줄(${rw.rows.join(' + ')}개)로 고르게 나뉘어요.`
         : '모바일 버튼이 한 줄에 모두 들어가요.']);
@@ -2076,6 +2049,7 @@ function rcBlock(s){
 registerModule({
   id: 'recommend',
   name: '추천해요 영역',
+  group: '추천 · 후기',
   defaults: {
  "rcC": "k",
  "use_rc": true,
@@ -2161,6 +2135,7 @@ function rvBlock(s){
 registerModule({
   id: 'review',
   name: '독자 후기 영역',
+  group: '추천 · 후기',
   defaults: {
  "rvTC": "w",
  "rvBC": "k",
@@ -2344,6 +2319,7 @@ document.addEventListener('click', e => {
 registerModule({
   id: 'interview_chat',
   name: '인터뷰(톡)',
+  group: '인터뷰',
   defaults: {
     use_iv: true, ivBg1: '#ffe7a9', ivBg2: '#fff3d2', ivBgDir: 'd', ivQBg: '#f58220', ivPt: '#f58220',
     ivQC: 'w', ivAC: 'k',
@@ -2562,6 +2538,7 @@ document.addEventListener('click', e => {
 registerModule({
   id: 'interview_expand',
   name: '인터뷰(확장)',
+  group: '인터뷰',
   defaults: {
     use_xv: true, xvBg1: '#efad32', xvBg2: '#111111', xvAlt: true, xvC1: 'k', xvC2: 'w',
     use_xvSub: true, xvSub: '독자가 묻고 작가가 답하다',
@@ -2692,15 +2669,19 @@ function ntBlock(s, p, divider){
   <h3 class="tt">${esc(s[p+'Title'])}</h3><div class="bd">${pHTML(s[p+'Body'])}</div>${s[p+'Sign']?`<p class="sg"><span>${esc(s[p+'Sign'])}</span></p>`:''}</div>`;
 }
 
+/* 표시 이름 — 제목(영역명)을 그대로 바꿔 쓸 수 있는 영역이라 안내를 함께 적는다 */
+const NAME = (D[P + 'Title'] || ('노트 영역(' + P + ')')) + ' (영역명 수정 가능)';
+
 registerModule({
   id: 'note_' + P,
-  name: D[P + 'Title'] || ('노트 영역(' + P + ')'),
+  name: NAME,
+  group: '노트',
   defaults: D,
   schema: {
-    id: P, t: D[P + 'Title'], d: '', use: 'use_' + P,
+    id: P, t: NAME, d: '아래 제목을 바꾸면 영역 이름도 함께 바뀌어요', use: 'use_' + P,
     f: [
       {t:'color', k:P+'Bg', l:'배경색'},
-      {t:'text',  k:P+'Title', l:'제목'},
+      {t:'text',  k:P+'Title', l:'제목 (영역명)', h:'여기에 적은 문구가 화면에 영역 제목으로 나와요. 예: 번역가 노트, 서점원 노트'},
       {t:'area',  k:P+'Body', l:'본문', r:9, h:'빈 줄 = 문단 나눔 · 줄바꿈 위치도 그대로 반영돼요.'},
       {t:'text',  k:P+'Sign', l:'서명'},
       {t:'tc',    k:P+'C', l:'본문 · 서명 글자색'}
@@ -2758,15 +2739,19 @@ function ntBlock(s, p, divider){
   <h3 class="tt">${esc(s[p+'Title'])}</h3><div class="bd">${pHTML(s[p+'Body'])}</div>${s[p+'Sign']?`<p class="sg"><span>${esc(s[p+'Sign'])}</span></p>`:''}</div>`;
 }
 
+/* 표시 이름 — 제목(영역명)을 그대로 바꿔 쓸 수 있는 영역이라 안내를 함께 적는다 */
+const NAME = (D[P + 'Title'] || ('노트 영역(' + P + ')')) + ' (영역명 수정 가능)';
+
 registerModule({
   id: 'note_' + P,
-  name: D[P + 'Title'] || ('노트 영역(' + P + ')'),
+  name: NAME,
+  group: '노트',
   defaults: D,
   schema: {
-    id: P, t: D[P + 'Title'], d: '', use: 'use_' + P,
+    id: P, t: NAME, d: '아래 제목을 바꾸면 영역 이름도 함께 바뀌어요', use: 'use_' + P,
     f: [
       {t:'color', k:P+'Bg', l:'배경색'},
-      {t:'text',  k:P+'Title', l:'제목'},
+      {t:'text',  k:P+'Title', l:'제목 (영역명)', h:'여기에 적은 문구가 화면에 영역 제목으로 나와요. 예: 번역가 노트, 서점원 노트'},
       {t:'area',  k:P+'Body', l:'본문', r:9, h:'빈 줄 = 문단 나눔 · 줄바꿈 위치도 그대로 반영돼요.'},
       {t:'text',  k:P+'Sign', l:'서명'},
       {t:'tc',    k:P+'C', l:'본문 · 서명 글자색'}
@@ -2957,6 +2942,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.id 
 registerModule({
   id: 'gift_main',
   name: '사은품 영역(주요)',
+  group: '사은품',
   defaults: {
     use_gm: true, gmBg1: '#f6f6f6', gmBg2: '#ffffff', gmBrand: '#0b19c9', gmC: 'k', gmStroke: '#0b19c9', gmStrokeW: '3',
     gmIconUrl: '',
@@ -3282,6 +3268,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.id 
 registerModule({
   id: 'gift_h',
   name: '사은품 영역(가로)',
+  group: '사은품',
   defaults: {
  "gfC": "k",
  "use_gf": true,
@@ -3390,22 +3377,15 @@ registerModule({
 })();
 
 
-const DEF = Object.assign({ pt:'#2b9bde', ns:'', pub:'pub1', bn:'bnX', cdn:'2026/book/폴더명', evTitle:'', fBody:'pretendard', fHead:'pretendard', fHeadExtra:'', picked:null, tDeco:'none', tDecoPos:'l', tDecoSize:'1.5', tDecoX:'0', tDecoY:'0', tDecoColor:'' }, ...MODS.map(m => m.defaults));
+const DEF = Object.assign({ pt:'#2b9bde', ns:'', pub:'pub1', bn:'bnX', cdn:'2026/book/폴더명', evTitle:'', fBody:'pretendard', fHead:'pretendard', fHeadExtra:'', picked:null, use_bgAll:false, bgA1:'#ffffff', bgA2:'#f4f1ea', bgADir:'d' }, ...MODS.map(m => m.defaults));
 let S = JSON.parse(JSON.stringify(DEF));
-const SC = MODS.filter(m => m.schema).map((m, i) => Object.assign({n: i+1}, m.schema));
 const FM = [
+  {t:'sw', k:'use_bgAll', l:'전체 배경', h:'켜면 각 영역에서 설정한 배경색은 무시되고, 아래 색이 페이지 전체에 한 번에 적용돼요. 그라데이션도 영역마다 끊기지 않고 처음부터 끝까지 이어집니다.'},
   {t:'row', f:[
-    {t:'sel', k:'tDeco', l:'제목 꾸밈 도형', o:SHAPE_OPTS},
-    {t:'sel', k:'tDecoPos', l:'도형 위치', o:[['l','제목 왼쪽 위'],['r','제목 오른쪽 위'],['c','제목 가운데 뒤']]}
+    {t:'color', k:'bgA1', l:'전체 배경색 ①'},
+    {t:'color', k:'bgA2', l:'전체 배경색 ②'}
   ]},
-  {t:'row', f:[
-    {t:'text', k:'tDecoSize', l:'도형 크기 (제목 글자 크기 대비 배수)', ph:'1.5'},
-    {t:'text', k:'tDecoColor', l:'도형 색상 (비우면 제목 색)', ph:'#2b9bde'}
-  ]},
-  {t:'row', f:[
-    {t:'text', k:'tDecoX', l:'가로 위치 조정 (+ 오른쪽 / − 왼쪽)', ph:'0'},
-    {t:'text', k:'tDecoY', l:'세로 위치 조정 (+ 아래 / − 위)', ph:'0', h:'제목 글자 크기 기준 배수예요. 0.1씩 넣어 보며 맞추세요. 도형은 투명도 30%이고, 헤더 영역과 제목 없는 영역에는 표시되지 않아요.'}
-  ]},
+  {t:'sel', k:'bgADir', l:'전체 배경 그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
   {t:'row', f:[
     {t:'sel', k:'fBody', l:'본문 폰트', o:FONT_OPTS},
     {t:'sel', k:'fHead', l:'제목 폰트', o:FONT_OPTS}
@@ -3431,6 +3411,56 @@ const kb = n => n > 1048576 ? (n/1048576).toFixed(1)+'MB' : Math.max(1,Math.roun
 const mix = (a,b,t) => { const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const x=p(a), y=p(b);
   return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join(''); };
 const imgSrc = k => (S[k+'Url']||'').trim();
+
+/* 강조 색 위에 올릴 글자색을 밝기로 고른다 (버튼·꼬리표 등) */
+function onColor(hex){
+  const h = String(hex || '').replace('#', '');
+  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  const n = parseInt(v.slice(0, 6), 16);
+  if(!isFinite(n)) return '#ffffff';
+  const f = c => (c = c/255) <= .03928 ? c/12.92 : Math.pow((c + .055)/1.055, 2.4);
+  return (.2126*f(n>>16&255) + .7152*f(n>>8&255) + .0722*f(n&255)) > .55 ? '#1c1c1e' : '#ffffff';
+}
+/* 버튼(탭) 줄 나누기 — 한 줄에 다 들어가면 한 줄, 넘치면 줄 수를 최소로 두고 고르게 나눈다
+   (7개 → 3 + 4). 모바일에서 줄이 늘어나면 버튼을 한 단계 작게 써서 한 줄에 더 담는다.
+   반환 {rows:[줄별 개수], sm:작은 버튼 여부} */
+const BTN_M = {
+  pc:   {fs:18, pad:93, npad:50, gap:12, avail:1147},
+  mo:   {fs:24, pad:100, npad:50, gap:12, avail:675},
+  moSm: {fs:22, pad:81,  npad:40, gap:10, avail:675}
+};
+function btnSplit(n, r){
+  const base = Math.floor(n/r), rem = n % r, out = [];
+  for(let i = 0; i < r; i++) out.push(i < r - rem ? base : base + 1);
+  return out.filter(x => x > 0);
+}
+function btnFit(names, mk, photo){
+  const M = BTN_M[mk] || BTN_M.mo;
+  const w = names.map(t => {
+    let x = 0;
+    for(const ch of String(t || '')) x += (ch.charCodeAt(0) < 256 ? .56 : 1);
+    return (photo ? M.pad : M.npad) + x * M.fs;
+  });
+  const fits = r => {
+    let i = 0;
+    return btnSplit(names.length, r).every(c => {
+      let sum = M.gap * (c - 1);
+      for(let k = 0; k < c; k++) sum += w[i++];
+      return sum <= M.avail;
+    });
+  };
+  let r = 1;
+  while(r < names.length && !fits(r)) r++;
+  return btnSplit(names.length, r);
+}
+function btnRows(names, mo, photo){
+  const rows = btnFit(names, mo ? 'mo' : 'pc', photo);
+  if(mo && rows.length > 1){
+    const r2 = btnFit(names, 'moSm', photo);
+    if(r2.length < rows.length) return {rows: r2, sm: true};
+  }
+  return {rows, sm: false};
+}
 
 /* ═══════ 출력 HTML ═══════ */
 const TC = {w:'#ffffff', k:'#222222'};
@@ -3496,7 +3526,6 @@ function nsHtml(h, ns){
   return h.replace(/(<[^>]*?\sclass=")([^"]*)"/g, (m,a,v) => a + v.split(/\s+/).filter(Boolean).map(t => /^e_/.test(t) ? t : ns+'-'+t).join(' ') + '"');
 }
 const cmt = v => String(v||'').replace(/--+/g,'-').replace(/[<>]/g,'');
-function isPicked(id){ return !Array.isArray(S.picked) || S.picked.indexOf(id) > -1; }
 /* 선택한 순서(S.picked)대로 모듈을 정렬 — 순서 바꾸기 창에서 바꾼 순서가 그대로 적용된다 */
 function orderedMods(){
   if(!Array.isArray(S.picked)) return MODS.slice();
@@ -3505,30 +3534,6 @@ function orderedMods(){
 }
 function activeMods(s){
   return orderedMods().filter(m => { const u = m.schema && m.schema.use; if(u && !s[u]) return false; if(m.has && !m.has(s)) return false; return true; });
-}
-/* 제목 꾸밈 도형 CSS — 제목 글자(.tdc)에만 붙는다. 헤더 모듈 제목은 감싸지 않으므로 자동 제외 */
-function decoCss(s){
-  const sh = SHAPES[s.tDeco]; if(!sh || !sh[1]) return '';
-  const num = (v, d) => { const n = parseFloat(v); return isFinite(n) ? n : d; };
-  const z = Math.min(4, Math.max(.5, num(s.tDecoSize, 1.5)));
-  const dx = num(s.tDecoX, 0), dy = num(s.tDecoY, 0);
-  const col = /^#[0-9a-fA-F]{3,8}$/.test((s.tDecoColor||'').trim()) ? s.tDecoColor.trim()
-            : (/^#[0-9a-fA-F]{3,8}$/.test((s.pt||'').trim()) ? s.pt.trim() : '#2b9bde');
-  const ex = n => `${+n.toFixed(2)}em`;
-  const pos = s.tDecoPos === 'r' ? `left:auto;right:${ex(-z*0.22 - dx)};top:${ex(-z*0.28 + dy)}`
-            : s.tDecoPos === 'c' ? `left:50%;top:50%;transform:translate(calc(-50% + ${ex(dx)}), calc(-50% + ${ex(dy)}))`
-            : `left:${ex(-z*0.22 + dx)};top:${ex(-z*0.28 + dy)}`;
-  let look = sh[1];
-  if(look === 'svg'){
-    const svg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E${SHAPE_SVG[s.tDeco].replace('@C', col.replace('#', '%23'))}%3C/svg%3E`;
-    look = `background:url("${svg}") center/contain no-repeat`;
-  } else {
-    look = `background:${col};${look}`;
-  }
-  return `
-.rcv .tdc{position:relative;display:inline-block}
-.rcv .tdc::after{content:'';position:absolute;${pos};width:${z}em;height:${z}em;opacity:.3;pointer-events:none;${look}}
-`;
 }
 function fontLinks(s){
   const need = new Set(['https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&display=swap']);
@@ -3541,17 +3546,21 @@ function build(mode){
   const extra = (s.fHeadExtra||'').trim().replace(/["'<>;{}]/g,'');
   const fh = extra ? `'${extra}',${fontOf(s.fHead)[2]}` : fontOf(s.fHead)[2];
   const vars = [`--pt:${s.pt}`, `--dot:${mix(s.pt,'#ffffff',.55)}`, `--f-body:${fontOf(s.fBody)[2]}`, `--f-head:${fh}`].concat(MODS.filter(x => x.vars).map(x => x.vars(s))).join(';');
-  const deco = SHAPES[s.tDeco] && SHAPES[s.tDeco][1];
   const parts = []; let prevId = null;
-  mods.forEach(x => {
-    let html = x.render(s, m, {prevId});
-    /* 이름에 '헤더'가 든 모듈은 제외, 제목(h3)이 있는 영역만 감싼다 */
-    if(deco && !/헤더/.test(x.name || '')) html = html.replace(/<h3([^>]*)>([\s\S]*?)<\/h3>/g, '<h3$1><span class="tdc">$2</span></h3>');
-    parts.push(html); prevId = x.id;
-  });
+  mods.forEach(x => { parts.push(x.render(s, m, {prevId})); prevId = x.id; });
   if(parts.length) parts[parts.length-1] = parts[parts.length-1].replace('class="sec ', 'class="sec end ');
-  const css = nsCss(`.rcv{${vars}}\n` + buildCSS(s, m, mods) + decoCss(s), ns, root);
-  const body = nsHtml(parts.join('\n'), ns);
+  /* 전체 배경 — 켜면 각 영역의 인라인 배경색을 걷어 내고 루트에 한 번만 칠한다 (그라데이션이 끊기지 않는다) */
+  const bgAll = s.use_bgAll
+    ? (s.bgA1 === s.bgA2 ? s.bgA1
+      : `linear-gradient(${s.bgADir === 'r' ? '135deg' : s.bgADir === 'u' ? '0deg' : '180deg'},${s.bgA1} 0%,${s.bgA2} 100%)`)
+    : '';
+  const css = nsCss(`.rcv{${vars}${bgAll ? `;background:${bgAll}` : ''}}\n` + buildCSS(s, m, mods), ns, root);
+  let joined = parts.join('\n');
+  if(bgAll) joined = joined.replace(/<[^>]+>/g, tag => tag.replace(/(\sstyle=")([^"]*)"/g, (mm, a2, v) => {
+    const kept = v.replace(/background\s*:[^;"]*;?/g, '').trim();
+    return kept ? a2 + kept + '"' : '';
+  }));
+  const body = nsHtml(joined, ns);
   const hintTitle = MODS.map(x => x.eventTitle ? x.eventTitle(s) : '').find(Boolean) || '';
   const title = (s.evTitle||'').trim() || `${hintTitle} ${TITLE_SUFFIX}`.trim();
   const cdn = cmt((s.cdn||'').replace(/^\/+|\/+$/g,'').replace(/[^\w\/.\-가-힣]/g,''));
@@ -3981,13 +3990,30 @@ document.addEventListener('click', e => {
 });
 
 /* ═══════ 모듈(영역) 고르기 ═══════ */
+const PICK_GROUPS = ['헤더', '도서 소개', '추천 · 후기', '인터뷰', '노트', '사은품', '기타'];
 function renderPick(){
   const box = $('#pickList'); if(!box) return;
   const cur = Array.isArray(S.picked) ? S.picked : MODS.map(m => m.id);
-  const rest = MODS.filter(m => cur.indexOf(m.id) < 0);
-  const list = cur.map(id => MODS.find(m => m.id === id)).filter(Boolean).concat(rest);
-  box.innerHTML = list.map(m => `<label class="pk"><input type="checkbox" data-pick="${escA(m.id)}"${cur.indexOf(m.id) > -1 ? ' checked' : ''}>
-    <span class="pkb"><span class="pkt">${esc(m.name || m.id)}</span>${m.desc ? `<span class="pkd">${esc(m.desc)}</span>` : (m.schema && m.schema.d ? `<span class="pkd">${esc(m.schema.d)}</span>` : '')}</span></label>`).join('');
+  const by = {};
+  MODS.forEach(m => { const g = PICK_GROUPS.indexOf(m.group) > -1 ? m.group : '기타'; (by[g] = by[g] || []).push(m); });
+  box.innerHTML = PICK_GROUPS.filter(g => by[g]).map(g => `<div class="pkg" data-grp="${escA(g)}">
+    <div class="pkgh"><span class="pkgt">${esc(g)}</span><span class="pkgn"></span><span class="sp"></span>
+      <button type="button" class="mini w" data-gall="${escA(g)}">모두</button></div>
+    ${by[g].map(m => `<label class="pk"><input type="checkbox" data-pick="${escA(m.id)}" data-g="${escA(g)}"${cur.indexOf(m.id) > -1 ? ' checked' : ''}>
+      <span class="pkb"><span class="pkt">${esc(m.name || m.id)}</span>${m.desc ? `<span class="pkd">${esc(m.desc)}</span>` : (m.schema && m.schema.d ? `<span class="pkd">${esc(m.schema.d)}</span>` : '')}</span></label>`).join('')}
+  </div>`).join('');
+  pickCount();
+}
+/* 그룹별 선택 개수와 버튼 글자를 새로 고친다 */
+function pickCount(){
+  let on = 0;
+  $$('#pickList .pkg').forEach(g => {
+    const box = $$('input', g), n = box.filter(i => i.checked).length;
+    on += n;
+    const lb = g.querySelector('.pkgn'); if(lb) lb.textContent = `${n}/${box.length}`;
+    const bt = g.querySelector('[data-gall]'); if(bt) bt.textContent = n === box.length ? '모두 해제' : '모두';
+  });
+  const go = $('#pickGo'); if(go){ go.textContent = on ? `선택한 ${on}개 영역으로 생성기 열기` : '영역을 1개 이상 골라 주세요'; go.disabled = !on; }
 }
 function showPick(on){
   $('#hdrBar').classList.toggle('hide', on || MODS.length < 2);
@@ -3996,8 +4022,16 @@ function showPick(on){
   $('#viewCol').classList.toggle('hide', on);
   if(on){ renderPick(); window.scrollTo({top:0}); }
 }
-$('#pickAll').addEventListener('click', () => $$('#pickList input').forEach(i => i.checked = true));
-$('#pickNone').addEventListener('click', () => $$('#pickList input').forEach(i => i.checked = false));
+$('#pickAll').addEventListener('click', () => { $$('#pickList input').forEach(i => i.checked = true); pickCount(); });
+$('#pickNone').addEventListener('click', () => { $$('#pickList input').forEach(i => i.checked = false); pickCount(); });
+$('#pickList').addEventListener('change', pickCount);
+$('#pickList').addEventListener('click', e => {
+  const b = e.target.closest('[data-gall]'); if(!b) return;
+  const box = $$(`#pickList .pkg[data-grp="${b.dataset.gall}"] input`);
+  const all = box.every(i => i.checked);
+  box.forEach(i => i.checked = !all);
+  pickCount();
+});
 $('#pickGo').addEventListener('click', () => {
   const ids = $$('#pickList input').filter(i => i.checked).map(i => i.dataset.pick);
   if(!ids.length){ toast('영역을 하나 이상 골라 주세요.'); return; }
