@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>교보 이벤트 생성기</title>
+<title>교보 이벤트 생성기 (전체 모듈)</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 :root{
@@ -127,6 +127,26 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(60px);background:#1c1c1e;color:#fff;border-radius:20px;padding:10px 18px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:99;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .foot{text-align:center;color:var(--tert);font-size:11.5px;margin-top:22px}
+.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
+.mini.x{color:var(--red)}
+.xvset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.xvset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.xvset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
+.xvset .ivh .sp{flex:1}
+.xvset input,.xvset textarea{background:#fff}
+.xvset .f:first-of-type{margin-top:0}
+.xvset .det{background:#fff}
+
+.mini{border:0;background:#fff;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;box-shadow:0 1px 2px rgba(18,35,63,.08)}
+.mini.x{color:var(--red)}
+.xvset{background:var(--field-bg);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.xvset .ivh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.xvset .ivh b{font-size:12.5px;font-weight:800;color:var(--sub)}
+.xvset .ivh .sp{flex:1}
+.xvset input,.xvset textarea{background:#fff}
+.xvset .f:first-of-type{margin-top:0}
+.xvset .det{background:#fff}
+
 .gl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .gi{display:flex;align-items:center;gap:10px;background:var(--field-bg);border-radius:14px;padding:8px 10px}
 .gi .th{width:63px;height:42px;border-radius:8px}
@@ -222,8 +242,8 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
 <body>
 <div class="wrap">
   <div id="hdr">
-    <h1>교보 이벤트 생성기 (전체 모듈)💗</h1>
-    <p class="lead">넣을 영역을 고른 뒤 내용을 입력하면 PC · 모바일 HTML이 만들어져요.<br>모든 이미지는 링크로 들어가요. 텍스트 강조는 **텍스트 강조**, 줄바꿈은 Enter 또는 &lt;br&gt; 예요.</p>
+    <h1>교보 이벤트 생성기 (전체 모듈)</h1>
+    <p class="lead">모든 이미지는 링크로 들어가요.<br>텍스트 강조는 **텍스트 강조** 예요.</p>
     <div class="bar" id="hdrBar" style="margin-top:12px"><button type="button" class="pill" id="bPick2">← 영역 다시 고르기</button></div>
   </div>
     <!-- 편집 -->
@@ -345,8 +365,8 @@ pre.code{margin:0;background:#1c1c1e;border-radius:14px;padding:14px 16px;font-f
    ═══════════════════════════════════════════════ */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const KEY = 'kyobo_all';
-const PC_W = 3000, MO_W = 750, NS_PREFIX = 'evt', TITLE_SUFFIX = '이벤트', SAVE_NAME = '교보이벤트';
+const KEY = 'kyobo_gen_all';
+const PC_W = 3000, MO_W = 750, NS_PREFIX = 'evt', TITLE_SUFFIX = '이벤트', SAVE_NAME = '이벤트';
 /* 사용 가능한 폰트 — 교보 페이지(공통 CSS)에서 제공되는 폰트는 link 없이 이름만 쓰고,
    Google Fonts 폰트는 선택했을 때만 link 가 코드에 자동으로 들어갑니다. */
 /* 제목 옆에 살짝 겹치는 꾸밈 도형 — 헤더 모듈(이름에 '헤더')과 제목이 없는 영역에는 들어가지 않는다 */
@@ -1101,6 +1121,943 @@ registerModule({
       if(!/^https?:\/\//.test(s.biLink.trim())) o.push(['w','책 표지 링크가 http(s):// 로 시작하지 않아 적용되지 않아요.']);
       else o.push(['g','책 표지 클릭 시 상세페이지로 이동하도록 링크가 연결돼요.']);
     } else o.push(['i','책 표지 링크가 비어 있어요. (링크 없이 표시)']);
+  }
+});
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   [추천 도서(1인 1권)]  id: book_pick_one
+   여러 명이 한 권씩 추천 + 추천사
+   서브 제목 · 제목 · 영역 설명(각각 끌 수 있음) + 추천 카드(기본 4, 최대 12)
+   카드 = 추천인(사진·이름·소개) + 도서 표지 + 도서명 + 저자·출판사 + 추천사
+   ISBN / 판매상품ID 만 넣으면 표지 주소와 상품 링크가 자동으로 만들어진다
+   PC 3000px(중앙 1195px 안, 2~3단) · 모바일 750px(1~2단)
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+const P1_MAX = 12, P1_LIMIT = 200;
+const p1Items = s => Array.isArray(s.p1Items) ? s.p1Items : [];
+const p1Len = t => String(t || '').replace(/\s+/g, '').length;
+const p1Txt = x => [x.title, x.auth, x.rec, x.who, x.role].some(v => String(v || '').trim());
+const p1Full = x => p1Txt(x) || String(x.isbn || '').trim() || String(x.cover || '').trim();
+const p1Has = s => lines(s.p1Title).length > 0 || lines(s.p1Sub).length > 0 || paras(s.p1Desc).length > 0 ||
+  p1Items(s).some(p1Full);
+/* ISBN(숫자 10~13자리) → 교보 표지 주소. http 로 시작하면 그대로 쓴다 */
+function p1Cover(x){
+  const direct = String(x.cover || '').trim();
+  if(direct) return direct;
+  const v = String(x.isbn || '').trim();
+  if(/:\/\//.test(v)) return v;
+  const d = v.replace(/[^0-9]/g, '');
+  return /^\d{10,13}$/.test(d) ? `https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/${d}.jpg` : '';
+}
+/* 판매상품ID(S + 숫자) → 교보 상품 주소. http 로 시작하면 그대로 쓴다 */
+function p1Link(x){
+  const direct = String(x.link || '').trim();
+  if(/^https?:\/\//.test(direct)) return direct;
+  const v = String(x.pid || '').trim();
+  if(/:\/\//.test(v)) return v;
+  return /^[Ss]\d{6,}$/.test(v) ? `https://product.kyobobook.co.kr/detail/${v.toUpperCase()}` : '';
+}
+/* 공백을 뺀 글자 수 기준으로 잘라 미리보기 만들기 */
+function p1Cut(t, n){
+  const out = []; let cnt = 0;
+  for(const ch of String(t || '')){
+    out.push(ch);
+    if(!/\s/.test(ch)) cnt++;
+    if(cnt >= n) break;
+  }
+  return out.join('').replace(/\s+$/, '') + '…';
+}
+/* 버튼 배경(강조 색) 위에 올릴 글자색을 밝기로 고른다 */
+function p1On(hex){
+  const h = String(hex || '').replace('#', '');
+  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  const n = parseInt(v.slice(0, 6), 16);
+  if(!isFinite(n)) return '#ffffff';
+  const f = c => (c = c/255) <= .03928 ? c/12.92 : Math.pow((c + .055)/1.055, 2.4);
+  const L = .2126*f(n>>16&255) + .7152*f(n>>8&255) + .0722*f(n&255);
+  return L > .55 ? '#1c1c1e' : '#ffffff';
+}
+/* 버튼 줄 나누기 — 한 줄에 다 들어가면 한 줄, 넘치면 줄 수를 최소로 하고 되도록 고르게 나눈다
+   (7개 → 3 + 4 처럼 윗줄이 적고 아랫줄이 많게) · 모바일에서 줄이 늘어나면 버튼을 한 단계 작게 써서 한 줄에 더 담는다 */
+const P1_M = {
+  pc:   {fs:18, pad:93, npad:50, gap:12, avail:1147},
+  mo:   {fs:24, pad:100, npad:50, gap:12, avail:675},
+  moSm: {fs:22, pad:81,  npad:40, gap:10, avail:675}
+};
+function p1Tw(t, fs){
+  let w = 0;
+  for(const ch of String(t || '')) w += (ch.charCodeAt(0) < 256 ? .56 : 1);
+  return w * fs;
+}
+function p1Split(n, r){
+  const base = Math.floor(n/r), rem = n % r, out = [];
+  for(let i = 0; i < r; i++) out.push(i < r - rem ? base : base + 1);
+  return out.filter(x => x > 0);
+}
+function p1Rows(names, mk, photo){
+  const M = P1_M[mk] || P1_M.mo;
+  const w = names.map(n => (photo ? M.pad : M.npad) + p1Tw(n, M.fs));
+  const fits = r => {
+    let i = 0;
+    return p1Split(names.length, r).every(c => {
+      let sum = M.gap * (c - 1);
+      for(let k = 0; k < c; k++) sum += w[i++];
+      return sum <= M.avail;
+    });
+  };
+  let r = 1;
+  while(r < names.length && !fits(r)) r++;
+  return p1Split(names.length, r);
+}
+function p1Bar(names, m, photo){
+  const rows = p1Rows(names, m ? 'mo' : 'pc', photo);
+  if(m && rows.length > 1){
+    const r2 = p1Rows(names, 'moSm', photo);
+    if(r2.length < rows.length) return {rows: r2, sm: true};
+  }
+  return {rows, sm: false};
+}
+const p1Pick = s => p1Items(s).filter(p1Full);
+const p1Tab = s => s.p1View === 'tb' && p1Pick(s).length > 0;
+function p1Who(s, x){
+  if(!s.p1Photo && !String(x.who || '').trim() && !String(x.role || '').trim()) return '';
+  const who = String(x.who || '').trim(), role = String(x.role || '').trim();
+  if(!s.p1Photo && !who && !role) return '';
+  const src = String(x.photo || '').trim();
+  const ph = s.p1Photo
+    ? `<div class="p1-ph p1-f-${s.p1Shape}">${src ? `<img src="${escA(src)}" alt="${escA(who || '추천인')}">` : '<span class="p1-pe"></span>'}</div>`
+    : '';
+  const tx = (who || role)
+    ? `<div class="p1-wt">${who ? `<p class="p1-wn">${esc(who)}</p>` : ''}${role ? `<p class="p1-wr">${esc(role)}</p>` : ''}</div>` : '';
+  return `<div class="p1-wh">${ph}${tx}</div>`;
+}
+function p1Rec(s, txt){
+  if(!paras(txt).length) return '';
+  const body = `<div class="p1-rb">${pHTML(txt)}</div>`;
+  if(!(s.use_p1Fold && p1Len(txt) > P1_LIMIT)) return `<div class="p1-rc">${body}</div>`;
+  return `<div class="p1-rc"><details class="p1-dt"><summary class="p1-sm">
+    <div class="p1-pv">${pHTML(p1Cut(txt, P1_LIMIT))}</div>
+    <span class="p1-bt"><span class="p1-o">추천사 전문 보기</span><span class="p1-c">접기</span></span>
+  </summary>${body}</details></div>`;
+}
+function p1Card(s, x, split){
+  if(!p1Full(x)) return '';
+  const cov = p1Cover(x), lk = p1Link(x);
+  const title = String(x.title || '').trim();
+  const img = cov ? `<img src="${escA(cov)}" alt="${escA(title || '추천 도서')} 표지">` : '<span class="p1-ce"></span>';
+  const cv = `<div class="p1-cv">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${img}</a>` : img}</div>`;
+  const bt = title ? `<p class="p1-bt2">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${md(title)}</a>` : md(title)}</p>` : '';
+  const ba = s.use_p1Auth && String(x.auth || '').trim() ? `<p class="p1-ba">${esc(x.auth)}</p>` : '';
+  const who = p1Who(s, x);
+  const cls = `p1-cd${s.use_p1Card ? '' : ' p1-nb'}${split ? ' p1-sp' : ''}`;
+  const txt = `${s.p1Pos === 't' ? who : ''}${bt}${ba}${p1Rec(s, x.rec)}${s.p1Pos === 'b' ? who : ''}`;
+  if(split) return `<div class="${cls}">${cv}<div class="p1-rt">${txt}</div></div>`;
+  return `<div class="${cls}">
+    ${s.p1Pos === 't' ? who : ''}
+    ${cv}${bt}${ba}
+    ${p1Rec(s, x.rec)}
+    ${s.p1Pos === 'b' ? who : ''}
+  </div>`;
+}
+function p1Block(s, m){
+  const L = p1Pick(s);
+  const cards = L.map(x => p1Card(s, x)).join('');
+  const bg = s.p1Bg1 === s.p1Bg2 ? s.p1Bg1
+    : `linear-gradient(${s.p1Dir === 'r' ? '135deg' : s.p1Dir === 'u' ? '0deg' : '180deg'},${s.p1Bg1} 0%,${s.p1Bg2} 100%)`;
+  const head = `${s.use_p1Sub && lines(s.p1Sub).length ? `<p class="p1-sub">${lines(s.p1Sub).map(esc).join('<br>')}</p>` : ''}
+    ${s.use_p1Title && lines(s.p1Title).length ? `<h3 class="tt p1-tt">${lines(s.p1Title).map(esc).join('<br>')}</h3>` : ''}
+    ${s.use_p1Desc && paras(s.p1Desc).length ? `<div class="p1-ds">${pHTML(s.p1Desc)}</div>` : ''}`;
+  const top = head.trim() ? `<div class="p1-top">${head}</div>` : '';
+  /* ① 버튼으로 전환 — 숨긴 라디오 + 라벨 버튼, 카드는 겹쳐 두어 영역 높이가 흔들리지 않는다 */
+  if(p1Tab(s)){
+    const rd = L.map((x, i) => `<input class="p1-r" type="radio" name="__NS__-p1tab" id="__NS__-p1t${i+1}"${i ? '' : ' checked'}>`).join('');
+    const nms = L.map((x, i) => String(x.who || '').trim() || String(x.title || '').trim() || `추천 ${i+1}`);
+    const btn = nms.map((nm, i) => {
+      const src = String(L[i].photo || '').trim();
+      const ph = s.p1Photo ? `<div class="p1-tph p1-f-${s.p1Shape}">${src ? `<img src="${escA(src)}" alt="${escA(nm)}">` : '<span class="p1-pe"></span>'}</div>` : '';
+      return `<label class="p1-tbt p1-tbt${i+1}" for="__NS__-p1t${i+1}">${ph}<span class="p1-tbn">${esc(nm)}</span></label>`;
+    });
+    const bar = p1Bar(nms, m, !!s.p1Photo);
+    let at = 0;
+    const rows = bar.rows.map(c => `<div class="p1-trw">${btn.slice(at, at += c).join('')}</div>`).join('');
+    const tb = L.length > 1 ? `<div class="p1-tb${s.p1Photo ? '' : ' p1-np'}${bar.sm ? ' p1-sm' : ''}">${rows}</div>` : '';
+    const pn = L.map((x, i) => `<div class="p1-pn p1-pn${i+1}">${p1Card(s, x, !m)}</div>`).join('');
+    return `<div class="sec p1 p1-tw" style="background:${bg}">${top ? `<div class="p1-in">${top}</div>` : ''}${rd}${tb}<div class="p1-st">${pn}</div></div>`;
+  }
+  /* ② 카드 나열 */
+  return `<div class="sec p1" style="background:${bg}"><div class="p1-in">
+  ${top}
+  ${cards ? `<div class="p1-gd p1-c${s.p1Cols} p1-m${s.p1MoCols}">${cards}</div>` : ''}
+</div></div>`;
+}
+const SCHEMA = {
+  id: 'p1', t: '추천 도서(1인 1권)', d: '스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_p1',
+  f: [
+    {t:'sel', k:'p1View', l:'표시 방식', o:[['gr','카드 나열'],['tb','버튼으로 전환 (추천인 버튼 + 고정 영역)']],
+      h:'버튼으로 전환: 추천인 버튼을 누르면 아래 고정 영역의 카드만 바뀌어요. 자바스크립트 없이 동작합니다.'},
+    {t:'row', f:[{t:'color', k:'p1Bg1', l:'배경색 ①'}, {t:'color', k:'p1Bg2', l:'배경색 ②'}]},
+    {t:'row', f:[
+      {t:'sel', k:'p1Dir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
+      {t:'tc', k:'p1C', l:'배경 위 글자색'}
+    ]},
+    {t:'sw', k:'use_p1Sub', l:'서브 제목 사용'},
+    {t:'area', k:'p1Sub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
+    {t:'sw', k:'use_p1Title', l:'제목 사용'},
+    {t:'area', k:'p1Title', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요.'},
+    {t:'sw', k:'use_p1Desc', l:'영역 설명 사용'},
+    {t:'area', k:'p1Desc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게'},
+    {t:'det', l:'카드 모양 · 단 수 · 추천인 사진 설정', f:[
+      {t:'row', f:[
+        {t:'sel', k:'p1Cols', l:'PC 단 수', o:[['2','2단'],['3','3단']], h:'카드 나열일 때만 적용돼요. 추천사가 길면 2단을 권장합니다.'},
+        {t:'sel', k:'p1MoCols', l:'모바일 단 수', o:[['1','1단'],['2','2단']], h:'추천사가 있으면 1단을 권장해요.'}
+      ]},
+      {t:'sw', k:'use_p1Card', l:'카드 배경 사용'},
+      {t:'row', f:[{t:'color', k:'p1Card', l:'카드 배경색'}, {t:'tc', k:'p1CardC', l:'카드 안 글자색'}]},
+      {t:'sw', k:'use_p1Auth', l:'저자 · 출판사 표시'},
+      {t:'sw', k:'use_p1Fold', l:`추천사가 길면 전문 보기 버튼 쓰기`, h:`공백을 뺀 글자 수가 ${P1_LIMIT}자를 넘는 추천사에만 생겨요. (스크립트 없이 동작)`},
+      {t:'sw', k:'p1Photo', l:'추천인 사진 사용', h:'끄면 이름과 소개만 표시돼요.'},
+      {t:'row', f:[
+        {t:'sel', k:'p1Shape', l:'사진 액자 모양', o:[['ci','원형'],['rd','둥근 사각형'],['sq','사각형']], h:'정사각형(1:1) 이미지를 권장해요.'},
+        {t:'sel', k:'p1Pos', l:'추천인 위치', o:[['t','카드 맨 위'],['b','추천사 아래']]}
+      ]},
+      {t:'row', f:[
+        {t:'text', k:'p1Bd', l:'액자 테두리 색상 (선택)', ph:'#b08b4f', h:'비우면 테두리가 없어요.'},
+        {t:'text', k:'p1BdW', l:'테두리 두께 (PC 기준 px)', ph:'0', h:'모바일은 두 배 굵기로 자동 적용돼요.'}
+      ]}
+    ]},
+    {t:'custom', id:'p1_items'}
+  ]
+};
+SCHEMA.f.find(f => f.t === 'custom').render = () => `<div class="f"><label>추천 카드 <span class="badge">최대 ${P1_MAX}개</span></label>
+  <div id="p1List"></div>
+  <div class="bar"><button type="button" class="pill" id="p1Add">추천 카드 추가</button>
+    <span class="hint" style="margin:0">ISBN · 판매상품ID 만 넣으면 표지와 링크가 자동으로 만들어져요.</span></div></div>`;
+function p1Chip(x){
+  const c = p1Cover(x) ? '표지 자동' : '표지 없음', l = p1Link(x) ? '링크 자동' : '링크 없음';
+  const n = p1Len(x.rec);
+  return `표지 ${c === '표지 자동' ? '✓' : '—'} · 링크 ${l === '링크 자동' ? '✓' : '—'} · 추천사 ${n}자`;
+}
+function renderP1(){
+  const box = $('#p1List'); if(!box) return;
+  const L = p1Items(S);
+  box.innerHTML = L.map((x, i) => `<div class="xvset">
+    <div class="ivh"><b>${i+1}번 추천</b><span class="hint" style="margin:0">${p1Chip(x)}</span><span class="sp"></span>
+      <button type="button" class="mini" data-p1m="up:${i}" title="위로">↑</button>
+      <button type="button" class="mini" data-p1m="dn:${i}" title="아래로">↓</button>
+      <button type="button" class="mini x" data-p1m="rm:${i}" title="삭제">✕</button></div>
+    <div class="row2">
+      <div class="f"><label>추천인 이름</label><input type="text" data-p1="${i}:who" value="${escA(x.who)}" placeholder="예: 정다원"></div>
+      <div class="f"><label>추천인 소개</label><input type="text" data-p1="${i}:role" value="${escA(x.role)}" placeholder="예: 교보문고 도서 MD"></div>
+    </div>
+    <div class="f"><label>추천인 사진 주소 (선택)</label><input type="url" data-p1="${i}:photo" value="${escA(x.photo)}" placeholder="https://contents.kyobobook.co.kr/pmtn/...">
+      <div class="hint">정사각형(1:1) 이미지를 권장해요. 비우면 빈 자리로 표시돼요.</div></div>
+    <div class="row2">
+      <div class="f"><label>ISBN</label><input type="text" data-p1="${i}:isbn" value="${escA(x.isbn)}" placeholder="9791194273448">
+        <div class="hint">표지 주소가 자동으로 만들어져요.</div></div>
+      <div class="f"><label>판매상품ID</label><input type="text" data-p1="${i}:pid" value="${escA(x.pid)}" placeholder="S000220568117">
+        <div class="hint">상품 링크가 자동으로 만들어져요.</div></div>
+    </div>
+    <div class="row2">
+      <div class="f"><label>도서명</label><input type="text" data-p1="${i}:title" value="${escA(x.title)}" placeholder="도서명을 입력해 주세요"></div>
+      <div class="f"><label>저자 · 출판사</label><input type="text" data-p1="${i}:auth" value="${escA(x.auth)}" placeholder="지은이 지음 · 출판사"></div>
+    </div>
+    <div class="f"><label>추천사</label><textarea data-p1="${i}:rec" rows="4" spellcheck="false">${esc(x.rec)}</textarea>
+      <div class="hint">빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게</div></div>
+    <details class="det"><summary>표지 · 링크 직접 넣기 (ISBN 대신 쓸 때만)</summary>
+      <div class="f"><label>표지 이미지 주소</label><input type="url" data-p1="${i}:cover" value="${escA(x.cover)}" placeholder="https://contents.kyobobook.co.kr/..."></div>
+      <div class="f"><label>도서 링크 주소</label><input type="url" data-p1="${i}:link" value="${escA(x.link)}" placeholder="https://product.kyobobook.co.kr/detail/..."></div>
+    </details>
+  </div>`).join('') || '<div class="hint" style="margin:0 0 10px">아직 추천 카드가 없어요.</div>';
+  const b = $('#p1Add'); if(b) b.disabled = L.length >= P1_MAX;
+}
+let p1T = null;
+document.addEventListener('input', e => {
+  const d = (e.target.dataset || {}).p1; if(!d) return;
+  const [i, k] = d.split(':');
+  S.p1Items[+i][k] = e.target.value;
+  const head = e.target.closest('.xvset'); if(head){ const h = head.querySelector('.ivh .hint'); if(h) h.textContent = p1Chip(S.p1Items[+i]); }
+  clearTimeout(p1T); p1T = setTimeout(sched, 140);
+});
+document.addEventListener('click', e => {
+  const m = e.target.closest('[data-p1m]');
+  if(m){
+    const [a, i] = m.dataset.p1m.split(':'), n = +i, L = S.p1Items;
+    if(a === 'rm') L.splice(n, 1);
+    if(a === 'up' && n > 0) [L[n-1], L[n]] = [L[n], L[n-1]];
+    if(a === 'dn' && n < L.length-1) [L[n+1], L[n]] = [L[n], L[n+1]];
+    renderP1(); sched(); return;
+  }
+  if(e.target.id === 'p1Add'){
+    if(S.p1Items.length >= P1_MAX){ toast(`추천 카드는 ${P1_MAX}개까지 넣을 수 있어요.`); return; }
+    S.p1Items.push({who:'', role:'', photo:'', isbn:'', pid:'', title:'', auth:'', rec:'', cover:'', link:''});
+    renderP1(); sched();
+    const last = document.querySelector(`[data-p1="${S.p1Items.length-1}:who"]`); if(last) last.focus();
+  }
+});
+registerModule({
+  id: 'book_pick_one',
+  name: '추천 도서(1인 1권)',
+  defaults: {
+    use_p1: true, p1View: 'gr', p1Bg1: '#f6f3ec', p1Bg2: '#ffffff', p1Dir: 'd', p1C: 'k',
+    use_p1Sub: true, p1Sub: '한 사람이 한 권씩',
+    use_p1Title: true, p1Title: '이 계절, 제가 권하고 싶은 책',
+    use_p1Desc: true, p1Desc: '책을 가까이에서 마주하는 분들께 올해의 한 권을 여쭈었습니다.\n짧은 추천사와 함께 소개해 드립니다.',
+    p1Cols: '2', p1MoCols: '1',
+    use_p1Card: true, p1Card: '#ffffff', p1CardC: 'k',
+    use_p1Auth: true, use_p1Fold: true,
+    p1Photo: true, p1Shape: 'ci', p1Pos: 't', p1Bd: '', p1BdW: '0',
+    p1Items: [
+      {who:'정다원', role:'교보문고 도서 MD', photo:'', isbn:'', pid:'', title:'도서명을 입력해 주세요',
+       auth:'지은이 지음 · 출판사',
+       rec:'한 해 동안 가장 여러 번 다시 펼친 책입니다. 빠르게 읽히지만 쉽게 잊히지 않는 문장들이 차곡차곡 쌓여, 마지막 장을 덮고 나면 평소 지나치던 장면들이 조금 다르게 보입니다.\n\n무엇을 더 읽어야 할지 고민하고 계신 분들께 망설임 없이 권해 드리고 싶습니다.', cover:'', link:''},
+      {who:'한서윤', role:'독서 모임 「밑줄」 운영', photo:'', isbn:'', pid:'', title:'도서명을 입력해 주세요',
+       auth:'지은이 지음 · 출판사',
+       rec:'함께 읽고 이야기 나누기에 더없이 좋은 책입니다. 서로 다른 밑줄이 그어진다는 점이 이 책의 가장 큰 매력입니다.', cover:'', link:''},
+      {who:'오민재', role:'서점원', photo:'', isbn:'', pid:'', title:'도서명을 입력해 주세요',
+       auth:'지은이 지음 · 출판사',
+       rec:'손님께 가장 자주 건네 드린 책입니다. 두께에 비해 문턱이 낮아, 오랜만에 책을 집어 드는 분께도 안심하고 권해 드릴 수 있습니다.', cover:'', link:''},
+      {who:'강은호', role:'출판 편집자', photo:'', isbn:'', pid:'', title:'도서명을 입력해 주세요',
+       auth:'지은이 지음 · 출판사',
+       rec:'만드는 사람의 눈으로 보아도 빈틈이 적은 책입니다. 한 문장을 고르고 다듬은 흔적이 고스란히 남아 있어, 읽는 내내 마음이 놓입니다.', cover:'', link:''}
+    ]
+  },
+  schema: SCHEMA,
+  has: s => p1Has(s),
+  render: (s, m) => p1Block(s, m),
+  vars: s => `--c-p1:${TC[s.p1C]};--c-p1cd:${TC[s.p1CardC]};--p1-cd:${s.use_p1Card ? s.p1Card : 'transparent'};--p1-on:${p1On(s.pt)};--p1-bd:${/^#[0-9a-fA-F]{3,8}$/.test((s.p1Bd||'').trim()) ? s.p1Bd.trim() : 'transparent'}`,
+  css: {
+    shared: `
+.rcv .p1-in{margin:0 auto}
+.rcv .p1-top{text-align:center}
+.rcv .p1-sub{color:var(--c-p1);opacity:.78}
+.rcv .p1-tt{color:var(--pt)}
+.rcv .p1-ds{color:var(--c-p1);opacity:.88}
+.rcv .p1-ds b{color:var(--pt)}
+.rcv .p1-ds p+p{margin-top:.7em}
+.rcv .p1-gd{display:grid;align-items:stretch}
+.rcv .p1-cd{display:flex;flex-direction:column;background:var(--p1-cd);color:var(--c-p1cd);min-width:0}
+.rcv .p1-nb{background:transparent;color:var(--c-p1);padding:0;box-shadow:none}
+.rcv .p1-wh{display:flex;align-items:center}
+.rcv .p1-ph{flex:none;overflow:hidden;background:rgba(0,0,0,.07);border-style:solid;border-color:var(--p1-bd);border-width:var(--p1-bw,0)}
+.rcv .p1-ph img{width:100%;height:100%;object-fit:cover}
+.rcv .p1-pe{display:block;width:100%;height:100%}
+.rcv .p1-f-ci{border-radius:50%}
+.rcv .p1-f-rd{border-radius:22px}
+.rcv .p1-wt{min-width:0}
+.rcv .p1-wn{font-weight:700;font-family:var(--f-head)}
+.rcv .p1-wr{opacity:.7}
+.rcv .p1-cv{display:flex;align-items:flex-end;justify-content:center}
+.rcv .p1-cv img{width:auto;max-width:100%;max-height:100%;filter:drop-shadow(0 6px 16px rgba(18,35,63,.22))}
+.rcv .p1-cv a{display:flex;align-items:flex-end;justify-content:center;height:100%}
+.rcv .p1-ce{display:block;width:60%;height:100%;border-radius:4px;background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.rcv .p1-bt2{text-align:center;font-weight:700;font-family:var(--f-head);letter-spacing:-.02em}
+.rcv .p1-bt2 a{display:inline}
+.rcv .p1-ba{text-align:center;opacity:.65}
+.rcv .p1-rc{position:relative;flex:1 1 auto}
+.rcv .p1-rb p+p{margin-top:.9em}
+.rcv .p1-rb b{font-weight:700;color:var(--pt)}
+.rcv .p1-dt{display:flex;flex-direction:column}
+.rcv .p1-dt[open] .p1-sm{order:2}
+.rcv .p1-dt summary{display:block;cursor:pointer;list-style:none}
+.rcv .p1-dt summary::-webkit-details-marker{display:none}
+.rcv .p1-pv{position:relative;overflow:hidden}
+.rcv .p1-pv p+p{margin-top:.9em}
+.rcv .p1-pv::after{content:'';position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,rgba(255,255,255,0),var(--p1-cd))}
+.rcv .p1-nb .p1-pv::after{display:none}
+.rcv .p1-bt{display:block;text-align:center;font-weight:700;color:var(--pt);opacity:.9}
+.rcv .p1-c{display:none}
+.rcv .p1-dt[open] .p1-pv{display:none}
+.rcv .p1-dt[open] .p1-o{display:none}
+.rcv .p1-dt[open] .p1-c{display:inline}
+/* 버튼으로 전환 — 라디오는 화면에서 감추고 라벨을 버튼처럼 쓴다 */
+.rcv .p1-tw{color:var(--c-p1)}
+.rcv .p1-r{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rcv .p1-tb{display:flex;flex-direction:column;align-items:center;margin-left:auto;margin-right:auto}
+.rcv .p1-trw{display:flex;flex-wrap:wrap;justify-content:center}
+.rcv .p1-np .p1-tbt{padding-left:24px}
+.rcv .p1-tbt{display:inline-flex;align-items:center;cursor:pointer;border-radius:999px;background:rgba(0,0,0,.06);color:inherit;transition:background .2s ease,color .2s ease}
+.rcv .p1-tph{flex:none;overflow:hidden;background:rgba(0,0,0,.08);border-style:solid;border-color:var(--p1-bd);border-width:var(--p1-bw,0)}
+.rcv .p1-tph img{width:100%;height:100%;object-fit:cover}
+.rcv .p1-tbn{font-weight:700;font-family:var(--f-head);white-space:nowrap}
+.rcv .p1-st{display:grid;margin-left:auto;margin-right:auto}
+.rcv .p1-pn{grid-area:1/1;display:flex;visibility:hidden;opacity:0;transition:opacity .25s ease}
+.rcv .p1-pn > .p1-cd{flex:1 1 auto}
+.rcv .p1-rt{min-width:0;display:flex;flex-direction:column}
+.rcv .p1-sp .p1-cv{flex:none;margin-top:0}
+`,
+    pc: `
+.rcv .p1{padding:96px 0 100px}
+.rcv .p1-in{width:1195px;max-width:96%}
+.rcv .p1-sub{font-size:20px;line-height:1.5}
+.rcv .p1-tt{font-size:40px;line-height:1.35;margin-top:14px}
+.rcv .p1-ds{font-size:19px;line-height:1.8;margin-top:22px}
+.rcv .p1-gd{gap:40px;margin-top:58px}
+.rcv .p1-c2{grid-template-columns:repeat(2,1fr)}
+.rcv .p1-c3{grid-template-columns:repeat(3,1fr)}
+.rcv .p1-cd{border-radius:20px;padding:38px 34px 36px}
+.rcv .p1-wh{gap:16px}
+.rcv .p1-ph{width:72px;height:72px}
+.rcv .p1-f-rd{border-radius:18px}
+.rcv .p1-wn{font-size:21px;line-height:1.3}
+.rcv .p1-wr{font-size:16px;line-height:1.4;margin-top:4px}
+.rcv .p1-cv{height:300px;margin-top:30px}
+.rcv .p1-bt2{font-size:24px;line-height:1.4;margin-top:28px}
+.rcv .p1-ba{font-size:16px;line-height:1.5;margin-top:8px}
+.rcv .p1-rc{font-size:18px;line-height:1.85;margin-top:24px}
+.rcv .p1-pv{max-height:190px}
+.rcv .p1-bt{font-size:16px;padding-top:12px}
+.rcv .p1-cd .p1-wh + .p1-cv{margin-top:26px}
+.rcv .p1-rc + .p1-wh{margin-top:28px;padding-top:24px;border-top:1px solid rgba(0,0,0,.08)}
+.rcv .p1-c3 .p1-cd{padding:32px 26px 30px}
+.rcv .p1-c3 .p1-cv{height:250px}
+.rcv .p1-c3 .p1-bt2{font-size:21px}
+.rcv .p1-c3 .p1-rc{font-size:17px}
+.rcv .p1-tw{padding:96px 0 100px}
+.rcv .p1-tb{width:1195px;max-width:96%;gap:12px;margin-top:46px}
+.rcv .p1-trw{gap:12px}
+.rcv .p1-tbt{gap:12px;padding:9px 26px 9px 9px}
+.rcv .p1-tph{width:46px;height:46px}
+.rcv .p1-tbn{font-size:18px}
+.rcv .p1-st{width:900px;max-width:94%;margin-top:34px}
+.rcv .p1-sp{flex-direction:row;align-items:stretch;gap:46px;padding:44px 44px 42px}
+.rcv .p1-sp .p1-cv{width:250px;height:372px;justify-content:center}
+.rcv .p1-sp .p1-rt{flex:1 1 auto;text-align:left}
+.rcv .p1-sp .p1-bt2,.rcv .p1-sp .p1-ba{text-align:left}
+.rcv .p1-sp .p1-wh + .p1-bt2{margin-top:26px}
+.rcv .p1-sp .p1-bt2{margin-top:0}
+.rcv .p1-sp .p1-bt{text-align:left}
+`,
+    mo: `
+.rcv .p1{padding:88px 0 92px}
+.rcv .p1-in{width:88%}
+.rcv .p1-sub{font-size:26px;line-height:1.5}
+.rcv .p1-tt{font-size:44px;line-height:1.35;margin-top:18px}
+.rcv .p1-ds{font-size:25px;line-height:1.8;margin-top:26px}
+.rcv .p1-gd{gap:36px;margin-top:56px}
+.rcv .p1-m1{grid-template-columns:1fr}
+.rcv .p1-m2{grid-template-columns:repeat(2,1fr)}
+.rcv .p1-cd{border-radius:26px;padding:44px 38px 42px}
+.rcv .p1-wh{gap:20px;min-width:0}
+.rcv .p1-ph{width:92px;height:92px}
+.rcv .p1-f-rd{border-radius:24px}
+.rcv .p1-wn{font-size:28px;line-height:1.3}
+.rcv .p1-wr{font-size:22px;line-height:1.4;margin-top:5px}
+.rcv .p1-cv{height:340px;margin-top:34px}
+.rcv .p1-bt2{font-size:32px;line-height:1.4;margin-top:32px}
+.rcv .p1-ba{font-size:22px;line-height:1.5;margin-top:10px}
+.rcv .p1-rc{font-size:25px;line-height:1.85;margin-top:28px}
+.rcv .p1-pv{max-height:260px}
+.rcv .p1-bt{font-size:23px;padding-top:16px}
+.rcv .p1-cd .p1-wh + .p1-cv{margin-top:30px}
+.rcv .p1-rc + .p1-wh{margin-top:32px;padding-top:28px;border-top:1px solid rgba(0,0,0,.08)}
+.rcv .p1-m2 .p1-cd{padding:34px 26px 32px}
+.rcv .p1-m2 .p1-cv{height:260px}
+.rcv .p1-m2 .p1-bt2{font-size:27px}
+.rcv .p1-m2 .p1-rc{font-size:23px}
+.rcv .p1-tw{padding:88px 0 92px}
+.rcv .p1-tb{width:90%;gap:12px;margin-top:44px}
+.rcv .p1-trw{gap:12px}
+.rcv .p1-sm{gap:10px}
+.rcv .p1-sm .p1-trw{gap:10px}
+.rcv .p1-sm .p1-tbt{gap:10px;padding:7px 20px 7px 7px}
+.rcv .p1-sm .p1-tph{width:44px;height:44px}
+.rcv .p1-sm .p1-tbn{font-size:22px}
+.rcv .p1-sm.p1-np .p1-tbt{padding:9px 20px}
+.rcv .p1-tbt{gap:12px;padding:8px 26px 8px 8px}
+.rcv .p1-tph{width:54px;height:54px}
+.rcv .p1-tbn{font-size:24px}
+.rcv .p1-st{width:88%;margin-top:32px}
+`,
+    anim(s, m){
+      const w = parseFloat(s.p1BdW), v = isFinite(w) && w > 0 ? w : 0;
+      const val = !v ? '0' : (m ? +(v*2/(MO_W/100)).toFixed(3) + 'vw' : v + 'px');
+      let out = `.rcv .p1-ph,.rcv .p1-tph{--p1-bw:${val}}\n`;
+      if(!p1Tab(s)) return out;
+      /* 선택한 버튼과 그 카드만 보이게 한다 — 카드는 겹쳐 있어 영역 높이가 바뀌지 않는다 */
+      p1Pick(s).forEach((x, i) => {
+        const n = i + 1;
+        out += `.rcv #__NS__-p1t${n}:checked ~ .p1-tb .p1-tbt${n}{background:var(--pt);color:var(--p1-on)}\n`;
+        out += `.rcv #__NS__-p1t${n}:focus-visible ~ .p1-tb .p1-tbt${n}{outline:2px solid var(--pt);outline-offset:3px}\n`;
+        out += `.rcv #__NS__-p1t${n}:checked ~ .p1-st .p1-pn${n}{visibility:visible;opacity:1}\n`;
+      });
+      return out;
+    }
+  },
+  validate(s, o){
+    if(s.use_p1 && !p1Has(s)){ o.push(['i', '추천 도서(1인 1권) 영역이 비어 있어 표시되지 않아요.']); return; }
+    if(!s.use_p1) return;
+    const L = p1Pick(s);
+    const noCov = L.filter(x => !p1Cover(x)).length, noLink = L.filter(x => !p1Link(x)).length;
+    const long = L.filter(x => p1Len(x.rec) > P1_LIMIT).length;
+    o.push(['g', p1Tab(s)
+      ? `추천 카드 ${L.length}개 (최대 ${P1_MAX}개) · 버튼으로 전환 (자바스크립트 없이 CSS 로만 동작해요)`
+      : `추천 카드 ${L.length}개 (최대 ${P1_MAX}개) · PC ${s.p1Cols}단 / 모바일 ${s.p1MoCols}단`]);
+    if(p1Tab(s)){
+      o.push(['g', '카드 영역은 가장 내용이 많은 카드에 맞춰 높이가 고정돼요.']);
+      const rw = p1Bar(L.map((x, i) => String(x.who || '').trim() || String(x.title || '').trim() || `추천 ${i+1}`), true, !!s.p1Photo);
+      o.push(['g', rw.rows.length > 1
+        ? `모바일 버튼은 ${rw.rows.length}줄(${rw.rows.join(' + ')}개)로 고르게 나뉘어요.`
+        : '모바일 버튼이 한 줄에 모두 들어가요.']);
+    }
+    if(noCov) o.push(['w', `${noCov}개 카드에 표지가 없어요. ISBN 또는 표지 주소를 넣어 주세요.`]);
+    if(noLink) o.push(['w', `${noLink}개 카드에 도서 링크가 없어요. 판매상품ID(S로 시작)를 넣으면 자동으로 연결돼요.`]);
+    if(s.p1Photo){
+      const noPh = L.filter(x => !String(x.photo || '').trim()).length;
+      if(noPh) o.push(['i', `${noPh}개 카드에 추천인 사진이 없어 빈 자리로 표시돼요. 사진을 쓰지 않으시려면 '추천인 사진 사용'을 꺼 주세요.`]);
+    }
+    if(s.use_p1Fold && long) o.push(['g', `추천사가 ${P1_LIMIT}자를 넘어 전문 보기 버튼이 생기는 카드 ${long}개 (스크립트 없이 동작)`]);
+    o.push(['g', 'ISBN · 판매상품ID 로 교보 표지 · 상품 주소를 자동으로 만들어요.']);
+  },
+  lint(code, mode, add){
+    if(/contents\.kyobobook\.co\.kr\/sih\/fit-in/.test(code)) add('i', '표지 이미지는 교보 표준 주소(fit-in/458x0)를 사용해요.');
+  },
+  eventTitle: s => lines(s.p1Title).join(' ').replace(/\*\*/g, ''),
+  afterForm: renderP1,
+  fixState(S){
+    if(!Array.isArray(S.p1Items)) S.p1Items = [];
+    S.p1Items = S.p1Items.slice(0, P1_MAX).map(x => ({
+      who: String(x && x.who || ''), role: String(x && x.role || ''), photo: String(x && x.photo || ''),
+      isbn: String(x && x.isbn || ''), pid: String(x && x.pid || ''), title: String(x && x.title || ''),
+      auth: String(x && x.auth || ''), rec: String(x && x.rec || ''),
+      cover: String(x && x.cover || ''), link: String(x && x.link || '')
+    }));
+    if(S.p1View !== 'gr' && S.p1View !== 'tb') S.p1View = 'gr';
+  }
+});
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   [추천 도서(1인 여러 권)]  id: book_pick_multi
+   여러 명이 여러 권씩 추천 + 추천사
+   표시 방식 2가지
+     · 버튼으로 전환 — 추천인 버튼을 누르면 아래 고정 영역의 내용만 바뀐다 (스크립트 없이 CSS 로만 동작)
+     · 세로로 나열  — 추천인 블록을 위에서 아래로 쌓는다
+   도서는 한 줄에 한 권:  ISBN | 도서명 | 저자 · 출판사 | 한 줄 코멘트 | 판매상품ID
+   ISBN / 판매상품ID 만 넣으면 표지 주소와 상품 링크가 자동으로 만들어진다
+   PC 3000px(중앙 1195px 안, 3~5단) · 모바일 750px(2~3단)
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+const PM_MAX = 8, PM_BOOK_MAX = 12;
+const pmPpl = s => Array.isArray(s.pmPpl) ? s.pmPpl : [];
+/* 도서 목록 한 줄 파싱 — 세로줄(|)로 칸을 나눈다 */
+function pmBooks(t){
+  return lines(t).map(l => {
+    const c = String(l).split('|').map(x => x.trim());
+    return {isbn:c[0]||'', title:c[1]||'', auth:c[2]||'', cmt:c[3]||'', pid:c[4]||''};
+  }).filter(b => b.isbn || b.title).slice(0, PM_BOOK_MAX);
+}
+function pmCover(b){
+  const v = String(b.isbn || '').trim();
+  if(/:\/\//.test(v)) return v;
+  const d = v.replace(/[^0-9]/g, '');
+  return /^\d{10,13}$/.test(d) ? `https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/${d}.jpg` : '';
+}
+function pmLink(b){
+  const v = String(b.pid || '').trim();
+  if(/:\/\//.test(v)) return v;
+  return /^[Ss]\d{6,}$/.test(v) ? `https://product.kyobobook.co.kr/detail/${v.toUpperCase()}` : '';
+}
+/* 버튼 배경(강조 색) 위에 올릴 글자색을 밝기로 고른다 */
+function pmOn(hex){
+  const h = String(hex || '').replace('#', '');
+  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  const n = parseInt(v.slice(0, 6), 16);
+  if(!isFinite(n)) return '#ffffff';
+  const f = c => (c = c/255) <= .03928 ? c/12.92 : Math.pow((c + .055)/1.055, 2.4);
+  const L = .2126*f(n>>16&255) + .7152*f(n>>8&255) + .0722*f(n&255);
+  return L > .55 ? '#1c1c1e' : '#ffffff';
+}
+/* 버튼 줄 나누기 — 한 줄에 다 들어가면 한 줄, 넘치면 줄 수를 최소로 하고 되도록 고르게 나눈다
+   (7개 → 3 + 4 처럼 윗줄이 적고 아랫줄이 많게) · 모바일에서 줄이 늘어나면 버튼을 한 단계 작게 써서 한 줄에 더 담는다 */
+const PM_M = {
+  pc:   {fs:18, pad:93, npad:50, gap:12, avail:1147},
+  mo:   {fs:24, pad:100, npad:50, gap:12, avail:675},
+  moSm: {fs:22, pad:81,  npad:40, gap:10, avail:675}
+};
+function pmTw(t, fs){
+  let w = 0;
+  for(const ch of String(t || '')) w += (ch.charCodeAt(0) < 256 ? .56 : 1);
+  return w * fs;
+}
+function pmSplit(n, r){
+  const base = Math.floor(n/r), rem = n % r, out = [];
+  for(let i = 0; i < r; i++) out.push(i < r - rem ? base : base + 1);
+  return out.filter(x => x > 0);
+}
+function pmRows(names, mk, photo){
+  const M = PM_M[mk] || PM_M.mo;
+  const w = names.map(n => (photo ? M.pad : M.npad) + pmTw(n, M.fs));
+  const fits = r => {
+    let i = 0;
+    return pmSplit(names.length, r).every(c => {
+      let sum = M.gap * (c - 1);
+      for(let k = 0; k < c; k++) sum += w[i++];
+      return sum <= M.avail;
+    });
+  };
+  let r = 1;
+  while(r < names.length && !fits(r)) r++;
+  return pmSplit(names.length, r);
+}
+function pmBar(names, m, photo){
+  const rows = pmRows(names, m ? 'mo' : 'pc', photo);
+  if(m && rows.length > 1){
+    const r2 = pmRows(names, 'moSm', photo);
+    if(r2.length < rows.length) return {rows: r2, sm: true};
+  }
+  return {rows, sm: false};
+}
+const pmFull = p => [p.who, p.role, p.word, p.books].some(v => String(v || '').trim());
+const pmList = s => pmPpl(s).filter(pmFull);
+const pmHas = s => lines(s.pmTitle).length > 0 || lines(s.pmSub).length > 0 || paras(s.pmDesc).length > 0 ||
+  pmPpl(s).some(pmFull);
+const pmTab = s => s.pmView === 'tb' && pmList(s).length > 0;
+function pmBook(s, b){
+  const cov = pmCover(b), lk = pmLink(b), title = String(b.title || '').trim();
+  const img = cov ? `<img src="${escA(cov)}" alt="${escA(title || '추천 도서')} 표지">` : '<span class="pm-ce"></span>';
+  const cv = `<div class="pm-cv">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${img}</a>` : img}</div>`;
+  const bt = title ? `<p class="pm-bt">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${md(title)}</a>` : md(title)}</p>` : '';
+  const ba = s.use_pmAuth && b.auth ? `<p class="pm-ba">${esc(b.auth)}</p>` : '';
+  const bc = s.use_pmCmt && b.cmt ? `<p class="pm-bc">${md(b.cmt)}</p>` : '';
+  return `<div class="pm-bk">${cv}${bt}${ba}${bc}</div>`;
+}
+function pmPhoto(s, p, cls){
+  if(!s.pmPhoto) return '';
+  const src = String(p.photo || '').trim(), who = String(p.who || '').trim();
+  return `<div class="${cls} pm-f-${s.pmShape}">${src ? `<img src="${escA(src)}" alt="${escA(who || '추천인')}">` : '<span class="pm-pe"></span>'}</div>`;
+}
+/* 추천인 한 명의 본문 — 머리(사진·이름·소개) + 한마디 + 도서 그리드 */
+function pmBody(s, p){
+  const who = String(p.who || '').trim(), role = String(p.role || '').trim();
+  const ht = (who || role)
+    ? `<div class="pm-ht">${who ? `<p class="pm-wn">${esc(who)}</p>` : ''}${role ? `<p class="pm-wr">${esc(role)}</p>` : ''}</div>` : '';
+  const ph = pmPhoto(s, p, 'pm-ph');
+  const hd = (ph || ht) ? `<div class="pm-hd">${ph}${ht}</div>` : '';
+  const wd = s.use_pmWord && paras(p.word).length ? `<div class="pm-wd">${pHTML(p.word)}</div>` : '';
+  const bk = pmBooks(p.books).map(b => pmBook(s, b)).join('');
+  const gd = bk ? `<div class="pm-gd pm-c${s.pmCols} pm-m${s.pmMoCols}">${bk}</div>` : '';
+  return hd + wd + gd;
+}
+function pmHead(s){
+  const head = `${s.use_pmSub && lines(s.pmSub).length ? `<p class="pm-sub">${lines(s.pmSub).map(esc).join('<br>')}</p>` : ''}
+    ${s.use_pmTitle && lines(s.pmTitle).length ? `<h3 class="tt pm-tt">${lines(s.pmTitle).map(esc).join('<br>')}</h3>` : ''}
+    ${s.use_pmDesc && paras(s.pmDesc).length ? `<div class="pm-ds">${pHTML(s.pmDesc)}</div>` : ''}`;
+  return head.trim() ? `<div class="pm-top"><div class="pm-in">${head}</div></div>` : '';
+}
+function pmBlock(s, m){
+  const P = pmList(s);
+  /* ① 버튼으로 전환 — 숨긴 라디오 + 라벨 버튼, 패널은 겹쳐 두어 영역 높이가 흔들리지 않는다 */
+  if(pmTab(s)){
+    const rd = P.map((p, i) => `<input class="pm-r" type="radio" name="__NS__-pmtab" id="__NS__-pmt${i+1}"${i ? '' : ' checked'}>`).join('');
+    const nms = P.map((p, i) => String(p.who || '').trim() || `추천 ${i+1}`);
+    const btn = nms.map((nm, i) => `<label class="pm-tbt pm-tbt${i+1}" for="__NS__-pmt${i+1}">${pmPhoto(s, P[i], 'pm-tph')}<span class="pm-tbn">${esc(nm)}</span></label>`);
+    const bar = pmBar(nms, m, !!s.pmPhoto);
+    let at = 0;
+    const rows = bar.rows.map(c => `<div class="pm-trw">${btn.slice(at, at += c).join('')}</div>`).join('');
+    const tb = P.length > 1 ? `<div class="pm-tb${s.pmPhoto ? '' : ' pm-np'}${bar.sm ? ' pm-sm' : ''}">${rows}</div>` : '';
+    const pn = P.map((p, i) => `<div class="pm-pn pm-pn${i+1}">${pmBody(s, p)}</div>`).join('');
+    return `<div class="sec pm pm-tw" style="background:${s.pmBg1}">${pmHead(s)}${rd}${tb}<div class="pm-st">${pn}</div></div>`;
+  }
+  /* ② 세로로 나열 */
+  const body = P.map((p, i) => {
+    const alt = s.pmAlt && i % 2 === 1;
+    return `<div class="pm-pl${alt ? ' pm-b' : ''}"${alt ? ` style="background:${s.pmBg2}"` : ''}><div class="pm-in">${pmBody(s, p)}</div></div>`;
+  }).join('');
+  return `<div class="sec pm" style="background:${s.pmBg1}">${pmHead(s)}${body}</div>`;
+}
+const SCHEMA = {
+  id: 'pm', t: '추천 도서(1인 여러 권)', d: '스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_pm',
+  f: [
+    {t:'sel', k:'pmView', l:'표시 방식', o:[['tb','버튼으로 전환 (추천인 버튼 + 고정 영역)'],['st','세로로 나열']],
+      h:'버튼으로 전환: 추천인 버튼을 누르면 아래 고정 영역의 내용만 바뀌어요. 자바스크립트 없이 동작합니다.'},
+    {t:'row', f:[{t:'color', k:'pmBg1', l:'배경색 ①'}, {t:'color', k:'pmBg2', l:'배경색 ②'}]},
+    {t:'sw', k:'pmAlt', l:'추천인마다 배경색 번갈아 쓰기', h:'세로로 나열일 때만 적용돼요. 버튼으로 전환일 때는 배경색 ②가 고정 영역(패널)의 배경이 됩니다.'},
+    {t:'row', f:[{t:'tc', k:'pmC1', l:'배경색 ① 위 글자색'}, {t:'tc', k:'pmC2', l:'배경색 ② 위 글자색'}]},
+    {t:'sw', k:'use_pmSub', l:'서브 제목 사용'},
+    {t:'area', k:'pmSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
+    {t:'sw', k:'use_pmTitle', l:'제목 사용'},
+    {t:'area', k:'pmTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요.'},
+    {t:'sw', k:'use_pmDesc', l:'영역 설명 사용'},
+    {t:'area', k:'pmDesc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게'},
+    {t:'det', l:'도서 카드 · 단 수 · 추천인 사진 설정', f:[
+      {t:'row', f:[
+        {t:'sel', k:'pmCols', l:'PC 단 수', o:[['3','3단'],['4','4단'],['5','5단']]},
+        {t:'sel', k:'pmMoCols', l:'모바일 단 수', o:[['2','2단'],['3','3단']]}
+      ]},
+      {t:'row', f:[
+        {t:'sw', k:'use_pmAuth', l:'저자 · 출판사 표시'},
+        {t:'sw', k:'use_pmCmt', l:'도서별 한 줄 코멘트 표시'}
+      ]},
+      {t:'sw', k:'use_pmWord', l:'추천인 한마디 사용'},
+      {t:'sw', k:'pmPhoto', l:'추천인 사진 사용', h:'끄면 이름과 소개만 표시돼요. 버튼에도 함께 적용됩니다.'},
+      {t:'row', f:[
+        {t:'sel', k:'pmShape', l:'사진 액자 모양', o:[['ci','원형'],['rd','둥근 사각형'],['sq','사각형']], h:'정사각형(1:1) 이미지를 권장해요.'},
+        {t:'text', k:'pmBd', l:'액자 테두리 색상 (선택)', ph:'#b08b4f', h:'비우면 테두리가 없어요.'}
+      ]},
+      {t:'text', k:'pmBdW', l:'테두리 두께 (PC 기준 px)', ph:'0', h:'모바일은 두 배 굵기로 자동 적용돼요.'}
+    ]},
+    {t:'custom', id:'pm_ppl'}
+  ]
+};
+SCHEMA.f.find(f => f.t === 'custom').render = () => `<div class="f"><label>추천인 <span class="badge">최대 ${PM_MAX}명</span></label>
+  <div id="pmList"></div>
+  <div class="bar"><button type="button" class="pill" id="pmAdd">추천인 추가</button>
+    <span class="hint" style="margin:0">도서는 한 줄에 한 권씩, 세로줄(|)로 칸을 나눠 주세요.</span></div></div>`;
+const PM_PH = 'ISBN | 도서명 | 저자 · 출판사 | 한 줄 코멘트 | 판매상품ID';
+function pmChip(p){
+  const B = pmBooks(p.books), cov = B.filter(pmCover).length, lk = B.filter(pmLink).length;
+  return `도서 ${B.length}권 · 표지 ${cov}개 · 링크 ${lk}개`;
+}
+function renderPm(){
+  const box = $('#pmList'); if(!box) return;
+  const L = pmPpl(S);
+  box.innerHTML = L.map((p, i) => `<div class="xvset">
+    <div class="ivh"><b>${i+1}번 추천인</b><span class="hint" style="margin:0">${pmChip(p)}</span><span class="sp"></span>
+      <button type="button" class="mini" data-pmm="up:${i}" title="위로">↑</button>
+      <button type="button" class="mini" data-pmm="dn:${i}" title="아래로">↓</button>
+      <button type="button" class="mini x" data-pmm="rm:${i}" title="삭제">✕</button></div>
+    <div class="row2">
+      <div class="f"><label>추천인 이름 <span class="badge">버튼 이름</span></label><input type="text" data-pm="${i}:who" value="${escA(p.who)}" placeholder="예: 정다원"></div>
+      <div class="f"><label>추천인 소개</label><input type="text" data-pm="${i}:role" value="${escA(p.role)}" placeholder="예: 교보문고 도서 MD"></div>
+    </div>
+    <div class="f"><label>추천인 사진 주소 (선택)</label><input type="url" data-pm="${i}:photo" value="${escA(p.photo)}" placeholder="https://contents.kyobobook.co.kr/pmtn/...">
+      <div class="hint">정사각형(1:1) 이미지를 권장해요.</div></div>
+    <div class="f"><label>추천사 (한마디)</label><textarea data-pm="${i}:word" rows="3" spellcheck="false">${esc(p.word)}</textarea>
+      <div class="hint">빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게</div></div>
+    <div class="f"><label>추천 도서 <span class="badge">최대 ${PM_BOOK_MAX}권</span></label>
+      <textarea data-pm="${i}:books" rows="5" spellcheck="false" placeholder="${escA(PM_PH)}">${esc(p.books)}</textarea>
+      <div class="hint">한 줄에 한 권 · 칸 구분은 세로줄(|)<br>${escA(PM_PH)}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.</div></div>
+  </div>`).join('') || '<div class="hint" style="margin:0 0 10px">아직 추천인이 없어요.</div>';
+  const b = $('#pmAdd'); if(b) b.disabled = L.length >= PM_MAX;
+}
+let pmT = null;
+document.addEventListener('input', e => {
+  const d = (e.target.dataset || {}).pm; if(!d) return;
+  const [i, k] = d.split(':');
+  S.pmPpl[+i][k] = e.target.value;
+  const head = e.target.closest('.xvset'); if(head){ const h = head.querySelector('.ivh .hint'); if(h) h.textContent = pmChip(S.pmPpl[+i]); }
+  clearTimeout(pmT); pmT = setTimeout(sched, 140);
+});
+document.addEventListener('click', e => {
+  const m = e.target.closest('[data-pmm]');
+  if(m){
+    const [a, i] = m.dataset.pmm.split(':'), n = +i, L = S.pmPpl;
+    if(a === 'rm') L.splice(n, 1);
+    if(a === 'up' && n > 0) [L[n-1], L[n]] = [L[n], L[n-1]];
+    if(a === 'dn' && n < L.length-1) [L[n+1], L[n]] = [L[n], L[n+1]];
+    renderPm(); sched(); return;
+  }
+  if(e.target.id === 'pmAdd'){
+    if(S.pmPpl.length >= PM_MAX){ toast(`추천인은 ${PM_MAX}명까지 넣을 수 있어요.`); return; }
+    S.pmPpl.push({who:'', role:'', photo:'', word:'', books:''});
+    renderPm(); sched();
+    const last = document.querySelector(`[data-pm="${S.pmPpl.length-1}:who"]`); if(last) last.focus();
+  }
+});
+const SAMPLE = '9791194273448 | 첫 번째 도서명 | 지은이 지음 · 출판사 | 한 줄 코멘트를 적어 주세요 | S000220568117\n | 두 번째 도서명 | 지은이 지음 · 출판사 | 한 줄 코멘트를 적어 주세요 | \n | 세 번째 도서명 | 지은이 지음 · 출판사 | 한 줄 코멘트를 적어 주세요 | \n | 네 번째 도서명 | 지은이 지음 · 출판사 | 한 줄 코멘트를 적어 주세요 | ';
+registerModule({
+  id: 'book_pick_multi',
+  name: '추천 도서(1인 여러 권)',
+  defaults: {
+    use_pm: true, pmView: 'tb', pmBg1: '#ffffff', pmBg2: '#f4f1ea', pmAlt: true, pmC1: 'k', pmC2: 'k',
+    use_pmSub: true, pmSub: '한 사람이 고른 여러 권',
+    use_pmTitle: true, pmTitle: '읽는 사람이 권하는 책장',
+    use_pmDesc: true, pmDesc: '책을 가까이에서 마주하는 분들께 지금 권하고 싶은 책들을 여쭈었습니다.\n추천인을 눌러 책장을 바꿔 가며 살펴보세요.',
+    pmCols: '4', pmMoCols: '2',
+    use_pmAuth: true, use_pmCmt: true, use_pmWord: true,
+    pmPhoto: true, pmShape: 'ci', pmBd: '', pmBdW: '0',
+    pmPpl: [
+      {who:'정다원', role:'교보문고 도서 MD', photo:'',
+       word:'한 해 동안 가장 여러 번 다시 펼친 책들을 모았습니다. 서로 결은 다르지만, 읽고 난 뒤 같은 자리를 오래 바라보게 한다는 점이 닮아 있습니다.',
+       books: SAMPLE},
+      {who:'한서윤', role:'독서 모임 「밑줄」 운영', photo:'',
+       word:'함께 읽고 이야기 나누기에 더없이 좋은 책들입니다. 서로 다른 밑줄이 그어진다는 점이 이 책들의 가장 큰 매력입니다.',
+       books: SAMPLE},
+      {who:'오민재', role:'서점원', photo:'',
+       word:'손님께 가장 자주 건네 드린 책들입니다. 오랜만에 책을 집어 드는 분께도 안심하고 권해 드릴 수 있습니다.',
+       books: SAMPLE}
+    ]
+  },
+  schema: SCHEMA,
+  has: s => pmHas(s),
+  render: (s, m) => pmBlock(s, m),
+  vars: s => `--c-pm1:${TC[s.pmC1]};--c-pm2:${TC[s.pmC2]};--pm-p2:${s.pmBg2};--pm-on:${pmOn(s.pt)};--pm-bd:${/^#[0-9a-fA-F]{3,8}$/.test((s.pmBd||'').trim()) ? s.pmBd.trim() : 'transparent'}`,
+  css: {
+    shared: `
+.rcv .pm-in{margin:0 auto}
+.rcv .pm-top,.rcv .pm-pl{width:100%;color:var(--c-pm1)}
+.rcv .pm-b{color:var(--c-pm2)}
+.rcv .pm-top{text-align:center}
+.rcv .pm-sub{opacity:.78}
+.rcv .pm-tt{color:var(--pt)}
+.rcv .pm-ds{opacity:.88}
+.rcv .pm-ds b{color:var(--pt)}
+.rcv .pm-ds p+p{margin-top:.7em}
+.rcv .pm-hd{display:flex;align-items:center}
+.rcv .pm-ph{flex:none;overflow:hidden;background:rgba(0,0,0,.07);border-style:solid;border-color:var(--pm-bd);border-width:var(--pm-bw,0)}
+.rcv .pm-ph img{width:100%;height:100%;object-fit:cover}
+.rcv .pm-pe{display:block;width:100%;height:100%}
+.rcv .pm-f-ci{border-radius:50%}
+.rcv .pm-f-rd{border-radius:22px}
+.rcv .pm-ht{min-width:0}
+.rcv .pm-wn{font-weight:700;font-family:var(--f-head)}
+.rcv .pm-wr{opacity:.7}
+.rcv .pm-wd{opacity:.9}
+.rcv .pm-wd p+p{margin-top:.8em}
+.rcv .pm-wd b{font-weight:700;color:var(--pt)}
+.rcv .pm-gd{display:grid;align-items:start}
+.rcv .pm-bk{min-width:0}
+.rcv .pm-cv{display:flex;align-items:flex-end;justify-content:flex-start}
+.rcv .pm-cv a{display:flex;align-items:flex-end;justify-content:flex-start;height:100%}
+.rcv .pm-cv img{width:auto;max-width:100%;max-height:100%;filter:drop-shadow(0 5px 13px rgba(18,35,63,.2))}
+.rcv .pm-ce{display:block;width:60%;height:100%;border-radius:4px;background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.rcv .pm-bt{font-weight:700;font-family:var(--f-head);letter-spacing:-.02em}
+.rcv .pm-bt a{display:inline}
+.rcv .pm-ba{opacity:.6}
+.rcv .pm-bc{opacity:.85}
+.rcv .pm-bc b{font-weight:700;color:var(--pt)}
+/* 버튼으로 전환 — 라디오는 화면에서 감추고 라벨을 버튼처럼 쓴다 */
+.rcv .pm-tw{color:var(--c-pm1)}
+.rcv .pm-r{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rcv .pm-tb{display:flex;flex-direction:column;align-items:center;margin-left:auto;margin-right:auto}
+.rcv .pm-trw{display:flex;flex-wrap:wrap;justify-content:center}
+.rcv .pm-np .pm-tbt{padding-left:24px}
+.rcv .pm-tbt{display:inline-flex;align-items:center;cursor:pointer;border-radius:999px;background:rgba(0,0,0,.06);color:inherit;transition:background .2s ease,color .2s ease}
+.rcv .pm-tph{flex:none;overflow:hidden;background:rgba(0,0,0,.08);border-style:solid;border-color:var(--pm-bd);border-width:var(--pm-bw,0)}
+.rcv .pm-tph img{width:100%;height:100%;object-fit:cover}
+.rcv .pm-tbn{font-weight:700;font-family:var(--f-head);white-space:nowrap}
+.rcv .pm-st{position:relative;display:grid;margin-left:auto;margin-right:auto}
+.rcv .pm-pn{grid-area:1/1;background:var(--pm-p2);color:var(--c-pm2);visibility:hidden;opacity:0;transition:opacity .25s ease}
+`,
+    pc: `
+.rcv .pm-top{padding:96px 0 30px}
+.rcv .pm-pl{padding:58px 0 64px}
+.rcv .pm-in{width:1195px;max-width:96%}
+.rcv .pm-sub{font-size:20px;line-height:1.5}
+.rcv .pm-tt{font-size:40px;line-height:1.35;margin-top:14px}
+.rcv .pm-ds{font-size:19px;line-height:1.8;margin-top:22px}
+.rcv .pm-hd{gap:18px}
+.rcv .pm-ph{width:84px;height:84px}
+.rcv .pm-f-rd{border-radius:20px}
+.rcv .pm-wn{font-size:24px;line-height:1.3}
+.rcv .pm-wr{font-size:16px;line-height:1.4;margin-top:4px}
+.rcv .pm-wd{font-size:18px;line-height:1.8;margin-top:22px;max-width:880px}
+.rcv .pm-gd{gap:36px 30px;margin-top:40px}
+.rcv .pm-c3{grid-template-columns:repeat(3,1fr)}
+.rcv .pm-c4{grid-template-columns:repeat(4,1fr)}
+.rcv .pm-c5{grid-template-columns:repeat(5,1fr)}
+.rcv .pm-cv{height:250px}
+.rcv .pm-c3 .pm-cv{height:290px}
+.rcv .pm-c5 .pm-cv{height:215px}
+.rcv .pm-bt{font-size:19px;line-height:1.45;margin-top:20px}
+.rcv .pm-ba{font-size:15px;line-height:1.5;margin-top:6px}
+.rcv .pm-bc{font-size:16px;line-height:1.65;margin-top:12px}
+.rcv .pm-tw{padding-bottom:96px}
+.rcv .pm-tw .pm-top{padding-bottom:34px}
+.rcv .pm-tb{width:1195px;max-width:96%;gap:12px}
+.rcv .pm-trw{gap:12px}
+.rcv .pm-tbt{gap:12px;padding:9px 26px 9px 9px}
+.rcv .pm-tph{width:46px;height:46px}
+.rcv .pm-tbn{font-size:18px}
+.rcv .pm-st{width:1195px;max-width:96%;margin-top:34px}
+.rcv .pm-pn{border-radius:26px;padding:52px 56px 56px}
+`,
+    mo: `
+.rcv .pm-top{padding:88px 0 26px}
+.rcv .pm-pl{padding:54px 0 58px}
+.rcv .pm-in{width:88%}
+.rcv .pm-sub{font-size:26px;line-height:1.5}
+.rcv .pm-tt{font-size:44px;line-height:1.35;margin-top:18px}
+.rcv .pm-ds{font-size:25px;line-height:1.8;margin-top:26px}
+.rcv .pm-hd{gap:20px;min-width:0}
+.rcv .pm-ph{width:100px;height:100px}
+.rcv .pm-f-rd{border-radius:26px}
+.rcv .pm-wn{font-size:32px;line-height:1.3}
+.rcv .pm-wr{font-size:23px;line-height:1.4;margin-top:5px}
+.rcv .pm-wd{font-size:25px;line-height:1.8;margin-top:26px}
+.rcv .pm-gd{gap:40px 28px;margin-top:44px}
+.rcv .pm-m2{grid-template-columns:repeat(2,1fr)}
+.rcv .pm-m3{grid-template-columns:repeat(3,1fr)}
+.rcv .pm-cv{height:290px}
+.rcv .pm-m3 .pm-cv{height:220px}
+.rcv .pm-bt{font-size:26px;line-height:1.45;margin-top:22px}
+.rcv .pm-ba{font-size:21px;line-height:1.5;margin-top:7px}
+.rcv .pm-bc{font-size:22px;line-height:1.65;margin-top:14px}
+.rcv .pm-m3 .pm-bt{font-size:23px}
+.rcv .pm-m3 .pm-ba,.rcv .pm-m3 .pm-bc{font-size:19px}
+.rcv .pm-tw{padding-bottom:88px}
+.rcv .pm-tw .pm-top{padding-bottom:30px}
+.rcv .pm-tb{width:90%;gap:12px}
+.rcv .pm-trw{gap:12px}
+.rcv .pm-sm{gap:10px}
+.rcv .pm-sm .pm-trw{gap:10px}
+.rcv .pm-sm .pm-tbt{gap:10px;padding:7px 20px 7px 7px}
+.rcv .pm-sm .pm-tph{width:44px;height:44px}
+.rcv .pm-sm .pm-tbn{font-size:22px}
+.rcv .pm-sm.pm-np .pm-tbt{padding:9px 20px}
+.rcv .pm-tbt{gap:12px;padding:8px 26px 8px 8px}
+.rcv .pm-tph{width:54px;height:54px}
+.rcv .pm-tbn{font-size:24px}
+.rcv .pm-st{width:90%;margin-top:32px}
+.rcv .pm-pn{border-radius:28px;padding:48px 40px 52px}
+`,
+    anim(s, m){
+      const w = parseFloat(s.pmBdW), v = isFinite(w) && w > 0 ? w : 0;
+      const val = !v ? '0' : (m ? +(v*2/(MO_W/100)).toFixed(3) + 'vw' : v + 'px');
+      let out = `.rcv .pm-ph,.rcv .pm-tph{--pm-bw:${val}}\n`;
+      if(!pmTab(s)) return out;
+      /* 선택한 버튼과 그 패널만 보이게 한다 — 패널은 겹쳐 있어 영역 높이가 바뀌지 않는다 */
+      pmList(s).forEach((p, i) => {
+        const n = i + 1;
+        out += `.rcv #__NS__-pmt${n}:checked ~ .pm-tb .pm-tbt${n}{background:var(--pt);color:var(--pm-on)}\n`;
+        out += `.rcv #__NS__-pmt${n}:focus-visible ~ .pm-tb .pm-tbt${n}{outline:2px solid var(--pt);outline-offset:3px}\n`;
+        out += `.rcv #__NS__-pmt${n}:checked ~ .pm-st .pm-pn${n}{visibility:visible;opacity:1}\n`;
+      });
+      return out;
+    }
+  },
+  validate(s, o){
+    if(s.use_pm && !pmHas(s)){ o.push(['i', '추천 도서(1인 여러 권) 영역이 비어 있어 표시되지 않아요.']); return; }
+    if(!s.use_pm) return;
+    const L = pmList(s);
+    let tot = 0, noCov = 0, noLink = 0, over = 0, noName = 0;
+    L.forEach(p => {
+      const all = lines(p.books).filter(l => String(l).replace(/\|/g, '').trim()).length;
+      const B = pmBooks(p.books);
+      tot += B.length;
+      if(all > PM_BOOK_MAX) over++;
+      if(!String(p.who || '').trim()) noName++;
+      noCov += B.filter(b => !pmCover(b)).length;
+      noLink += B.filter(b => !pmLink(b)).length;
+    });
+    o.push(['g', `추천인 ${L.length}명 · 도서 ${tot}권 · PC ${s.pmCols}단 / 모바일 ${s.pmMoCols}단`]);
+    if(pmTab(s)){
+      o.push(['g', `버튼으로 전환 · 버튼 ${L.length}개 (자바스크립트 없이 CSS 로만 동작해요)`]);
+      o.push(['g', '추천 도서 영역은 가장 내용이 많은 추천인에 맞춰 높이가 고정돼요.']);
+      if(noName) o.push(['w', `${noName}명에 이름이 없어 버튼이 '추천 1' 처럼 표시돼요.`]);
+      const rw = pmBar(L.map((p, i) => String(p.who || '').trim() || `추천 ${i+1}`), true, !!s.pmPhoto);
+      o.push(['g', rw.rows.length > 1
+        ? `모바일 버튼은 ${rw.rows.length}줄(${rw.rows.join(' + ')}개)로 고르게 나뉘어요.`
+        : '모바일 버튼이 한 줄에 모두 들어가요.']);
+    }
+    if(over) o.push(['w', `${over}명의 도서가 ${PM_BOOK_MAX}권을 넘어 뒷부분은 표시되지 않아요.`]);
+    if(noCov) o.push(['w', `${noCov}권에 표지가 없어요. 첫 칸에 ISBN 또는 표지 주소를 넣어 주세요.`]);
+    if(noLink) o.push(['w', `${noLink}권에 도서 링크가 없어요. 마지막 칸에 판매상품ID(S로 시작)를 넣으면 자동으로 연결돼요.`]);
+    o.push(['g', 'ISBN · 판매상품ID 로 교보 표지 · 상품 주소를 자동으로 만들어요.']);
+  },
+  lint(code, mode, add){
+    if(/contents\.kyobobook\.co\.kr\/sih\/fit-in/.test(code)) add('i', '표지 이미지는 교보 표준 주소(fit-in/458x0)를 사용해요.');
+  },
+  eventTitle: s => lines(s.pmTitle).join(' ').replace(/\*\*/g, ''),
+  afterForm: renderPm,
+  fixState(S){
+    if(!Array.isArray(S.pmPpl)) S.pmPpl = [];
+    S.pmPpl = S.pmPpl.slice(0, PM_MAX).map(p => ({
+      who: String(p && p.who || ''), role: String(p && p.role || ''), photo: String(p && p.photo || ''),
+      word: String(p && p.word || ''), books: String(p && p.books || '')
+    }));
+    if(S.pmView !== 'st' && S.pmView !== 'tb') S.pmView = 'tb';
   }
 });
 })();
@@ -2534,6 +3491,8 @@ function nsCss(css, ns, root){
   return css.split('\u0001').join(root);
 }
 function nsHtml(h, ns){
+  /* id/for/name 등에 쓰는 __NS__ 도 네임스페이스로 바꾼다 (CSS 의 __NS__ 와 동일) */
+  h = h.replace(/__NS__/g, ns);
   return h.replace(/(<[^>]*?\sclass=")([^"]*)"/g, (m,a,v) => a + v.split(/\s+/).filter(Boolean).map(t => /^e_/.test(t) ? t : ns+'-'+t).join(' ') + '"');
 }
 const cmt = v => String(v||'').replace(/--+/g,'-').replace(/[<>]/g,'');
