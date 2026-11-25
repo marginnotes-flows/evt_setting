@@ -1199,6 +1199,745 @@ registerModule({
 })();
 
 /* ═══════════════════════════════════════════════════════════════
+   [도서 목록]  id: book_list
+   표지를 나란히 놓는 단순 나열 영역
+   서브 제목 · 제목 · 영역 설명(각각 끄기) + 도서 목록(한 줄에 한 권)
+   가로 기준 1권(1×N) · 2권(2×N) · 3권(3×N) 선택 — 1단은 가로형 카드, 2·3단은 세로형 카드
+   ISBN / 판매상품ID 만 넣으면 표지 주소와 상품 링크가 자동으로 만들어진다
+   PC 3000px(중앙 1195px 안) · 모바일 750px
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+const BL_MAX = 40;
+const BL_PH = 'ISBN | 도서명 | 저자 · 출판사 | 한 줄 소개 | 판매상품ID';
+/* 도서 목록 한 줄 파싱 — 세로줄(|)로 칸을 나눈다 */
+function blBooks(t){
+  return lines(t).map(l => {
+    const c = String(l).split('|').map(x => x.trim());
+    return {isbn:c[0]||'', title:c[1]||'', auth:c[2]||'', cmt:c[3]||'', pid:c[4]||''};
+  }).filter(b => b.isbn || b.title).slice(0, BL_MAX);
+}
+function blCover(b){
+  const v = String(b.isbn || '').trim();
+  if(/:\/\//.test(v)) return v;
+  const d = v.replace(/[^0-9]/g, '');
+  return /^\d{10,13}$/.test(d) ? `https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/${d}.jpg` : '';
+}
+function blLink(b){
+  const v = String(b.pid || '').trim();
+  if(/:\/\//.test(v)) return v;
+  return /^[Ss]\d{6,}$/.test(v) ? `https://product.kyobobook.co.kr/detail/${v.toUpperCase()}` : '';
+}
+const blHas = s => lines(s.blTitle).length > 0 || lines(s.blSub).length > 0 || paras(s.blDesc).length > 0 ||
+  blBooks(s.blBooks).length > 0;
+function blCard(s, b){
+  const cov = blCover(b), lk = blLink(b), title = String(b.title || '').trim();
+  const img = cov ? `<img src="${escA(cov)}" alt="${escA(title || '도서')} 표지">` : '<span class="bl-ce"></span>';
+  const cv = `<div class="bl-cv">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${img}</a>` : img}</div>`;
+  const tx = lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${md(title)}</a>` : md(title);
+  const bt = title ? `<p class="bl-bt">${tx}</p>` : '';
+  const ba = s.use_blAuth && b.auth ? `<p class="bl-ba">${esc(b.auth)}</p>` : '';
+  const bc = s.use_blCmt && b.cmt ? `<p class="bl-bc">${md(b.cmt)}</p>` : '';
+  return `<div class="bl-bk${s.use_blCard ? '' : ' bl-nb'}">${cv}<div class="bl-tx">${bt}${ba}${bc}</div></div>`;
+}
+function blBlock(s){
+  const B = blBooks(s.blBooks);
+  const bg = s.blBg1 === s.blBg2 ? s.blBg1
+    : `linear-gradient(${s.blDir === 'r' ? '135deg' : s.blDir === 'u' ? '0deg' : '180deg'},${s.blBg1} 0%,${s.blBg2} 100%)`;
+  const head = `${s.use_blSub && lines(s.blSub).length ? `<p class="bl-sub">${lines(s.blSub).map(esc).join('<br>')}</p>` : ''}
+    ${s.use_blTitle && lines(s.blTitle).length ? `<h3 class="tt bl-tt">${lines(s.blTitle).map(esc).join('<br>')}</h3>` : ''}
+    ${s.use_blDesc && paras(s.blDesc).length ? `<div class="bl-ds">${pHTML(s.blDesc)}</div>` : ''}`;
+  let body = '';
+  if(B.length && s.blView === 'slide'){
+    const n = B.length, auto = !!s.blAuto && n > 1, sec = Math.max(2, +s.blSec || 4);
+    /* 자동일 때는 첫 장을 한 번 더 붙여 마지막에서 자연스럽게 처음으로 돌아오게 한다 */
+    const seq = auto ? B.concat([B[0]]) : B;
+    const slide = (b, i) => {
+      const cov = blCover(b), lk = blLink(b), t = String(b.title || '').trim();
+      const img = cov ? `<img src="${escA(cov)}" alt="${escA(t || '도서')} 표지">` : '<span class="bl-ce"></span>';
+      return `<div class="bl-sd bl-sd${i + 1}"><div class="bl-cw"><div class="bl-cv">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${img}</a>` : img}</div></div></div>`;
+    };
+    const texts = B.map((b, i) => {
+      const lk = blLink(b), t = String(b.title || '').trim();
+      const ba = s.use_blAuth && b.auth ? `<p class="bl-ba">${esc(b.auth)}</p>` : '';
+      const bt = t ? `<p class="bl-bt">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${md(t)}</a>` : md(t)}</p>` : '';
+      const bc = s.use_blCmt && b.cmt ? `<p class="bl-bc">${md(b.cmt)}</p>` : '';
+      return `<div class="bl-tx bl-tx${i + 1}">${ba}${bt}${bc}</div>`;
+    }).join('');
+    const rd = (!auto && n > 1) ? B.map((b, i) => `<input class="bl-r" type="radio" name="__NS__-blsl" id="__NS__-bls${i+1}"${i ? '' : ' checked'}>`).join('') : '';
+    const dots = n > 1
+      ? `<div class="bl-dts">${B.map((b, i) => auto
+          ? `<span style="animation-delay:${i * sec}s"></span>`
+          : `<label class="bl-dot bl-dot${i+1}" for="__NS__-bls${i+1}"><span class="e_hidden">${i+1}번 도서 보기</span></label>`).join('')}</div>`
+      : '';
+    body = `<div class="bl-sw bl-cf${auto ? '' : ' bl-mn'}">${rd}
+      <div class="bl-sl"><div class="bl-tr">${seq.map(slide).join('')}</div></div>
+      <div class="bl-ti">${texts}</div>${dots}</div>`;
+  } else if(B.length){
+    body = `<div class="bl-gd bl-c${s.blCols}">${B.map(b => blCard(s, b)).join('')}</div>`;
+  }
+  return `<div class="sec bl" style="background:${bg}"><div class="bl-in">
+  ${head.trim() ? `<div class="bl-top">${head}</div>` : ''}
+  ${body}
+</div></div>`;
+}
+const SCHEMA = {
+  id: 'bl', t: '도서 목록', d: '스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_bl',
+  f: [
+    {t:'row', f:[
+      {t:'sel', k:'blView', l:'표시 방식', o:[['list','나열 — 한 번에 모두 보여 주기'],['slide','슬라이드 — 자동으로 넘어감']],
+        h:'슬라이드는 가운데 표지를 크게 보여 주고 양옆 책이 살짝 보이는 형태예요. 이때 가로 권수는 쓰이지 않습니다.'},
+      {t:'text', k:'blSec', l:'자동 넘김 간격 (초)', ph:'4', h:'자동으로 넘길 때만 쓰여요.'}
+    ]},
+    {t:'sw', k:'blAuto', l:'슬라이드 자동으로 넘기기', h:'끄면 아래 점을 눌러 넘깁니다. 둘 다 자바스크립트 없이 동작해요.'},
+    {t:'sel', k:'blCols', l:'가로 권수', o:[['1','1권씩 (1×N)'],['2','2권씩 (2×N)'],['3','3권씩 (3×N)']],
+      h:'PC · 모바일에 함께 적용돼요. 1권씩은 표지를 크게 보여 주고, 3권씩은 모바일에서도 표지를 줄여 한 줄에 3권을 넣습니다.'},
+    {t:'row', f:[{t:'color', k:'blBg1', l:'배경색 ①'}, {t:'color', k:'blBg2', l:'배경색 ②'}]},
+    {t:'row', f:[
+      {t:'sel', k:'blDir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
+      {t:'tc', k:'blC', l:'배경 위 글자색'}
+    ]},
+    {t:'sw', k:'use_blSub', l:'서브 제목 사용'},
+    {t:'area', k:'blSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
+    {t:'sw', k:'use_blTitle', l:'제목 사용'},
+    {t:'area', k:'blTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요.'},
+    {t:'sw', k:'use_blDesc', l:'영역 설명 사용'},
+    {t:'area', k:'blDesc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게'},
+    {t:'det', l:'카드 모양 설정', f:[
+      {t:'row', f:[
+        {t:'sw', k:'use_blAuth', l:'저자 · 출판사 표시'},
+        {t:'sw', k:'use_blCmt', l:'한 줄 소개 표시'}
+      ]},
+        {t:'sw', k:'use_blCard', l:'카드 배경 사용'},
+      {t:'row', f:[{t:'color', k:'blCard', l:'카드 배경색'}, {t:'tc', k:'blCardC', l:'카드 안 글자색'}]}
+    ]},
+    {t:'area', k:'blBooks', l:`도서 목록`, r:8, ph: BL_PH,
+      h:`한 줄에 한 권 · 칸 구분은 세로줄(|) <span class="badge">최대 ${BL_MAX}권</span><br>${BL_PH}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.`}
+  ]
+};
+const SAMPLE = [
+  '9791194273448 | 물성과 여백 | 정하윤 지음 · 담담 | 첫 장부터 속도가 붙는 책 | S000220568117',
+  ' | 밤의 지도 | 서지후 지음 · 모래책방 | 혼자 읽기 아까운 책 | ',
+  ' | 조용한 관찰자 | 이연 지음 · 푸른여름 | 문장이 오래 남는 책 | ',
+  ' | 가까운 거리 | 한도경 지음 · 작은숲 | 가볍게 시작해 깊게 끝나는 책 | ',
+  ' | 손끝의 계절 | 노을 지음 · 밤섬 | 밑줄이 가장 많았던 책 | ',
+  ' | 읽는 사람 | 유지안 지음 · 책과바람 | 선물하기 좋은 책 | '
+].join('\n');
+registerModule({
+  id: 'book_list',
+  name: '도서 목록',
+  group: '추천 · 후기',
+  defaults: {
+    use_bl: true, blBg1: '#ffffff', blBg2: '#f6f3ec', blDir: 'd', blC: 'k',
+    blCols: '3', blView: 'list', blAuto: true, blSec: '4',
+    use_blSub: true, blSub: '이번 달의 책',
+    use_blTitle: true, blTitle: '함께 읽으면 좋은 책',
+    use_blDesc: true, blDesc: '아래 도서를 눌러 상세 페이지로 바로 이동하실 수 있습니다.',
+    use_blAuth: true, use_blCmt: true,
+    use_blCard: false, blCard: '#ffffff', blCardC: 'k',
+    blBooks: SAMPLE
+  },
+  schema: SCHEMA,
+  has: s => blHas(s),
+  render: (s, m) => blBlock(s),
+  vars: s => `--c-bl:${TC[s.blC]};--c-blcd:${TC[s.blCardC]};--bl-cd:${s.use_blCard ? s.blCard : 'transparent'};`,
+  css: {
+    shared: `
+.rcv .bl-in{margin:0 auto;color:var(--c-bl)}
+.rcv .bl-top{text-align:center}
+.rcv .bl-sub{opacity:.78}
+.rcv .bl-tt{color:var(--pt)}
+.rcv .bl-ds{opacity:.88}
+.rcv .bl-ds b{color:var(--pt)}
+.rcv .bl-ds p+p{margin-top:.7em}
+.rcv .bl-gd{display:grid;align-items:start}
+.rcv .bl-bk{display:flex;min-width:0;background:var(--bl-cd);color:var(--c-blcd)}
+.rcv .bl-nb{background:transparent;color:var(--c-bl);padding:0}
+.rcv .bl-cv{display:flex;align-items:flex-end;justify-content:center}
+.rcv .bl-cv a{display:flex;align-items:flex-end;justify-content:center;height:100%}
+.rcv .bl-cv img{width:auto;max-width:100%;max-height:100%;filter:drop-shadow(0 5px 14px rgba(18,35,63,.22))}
+.rcv .bl-ce{display:block;width:60%;height:100%;border-radius:4px;background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.rcv .bl-tx{min-width:0}
+.rcv .bl-bt{font-weight:700;font-family:var(--f-head);letter-spacing:-.02em}
+.rcv .bl-bt a{display:inline}
+.rcv .bl-ba{opacity:.62}
+.rcv .bl-bc{opacity:.85}
+.rcv .bl-bc b{font-weight:700;color:var(--pt)}
+/* 표지 위 · 글 아래 세로형 — 도서 정보는 표지 기준 가운데 정렬 */
+.rcv .bl-bk{flex-direction:column}
+.rcv .bl-tx{text-align:center}
+/* 슬라이드 — 가운데 표지를 크게, 양옆 책은 살짝 보이게 (CSS 로만 동작) */
+.rcv .bl-sw{position:relative;margin:0 auto}
+.rcv .bl-r{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rcv .bl-sl{overflow:hidden}
+.rcv .bl-tr{display:flex}
+.rcv .bl-sd{flex:none;min-width:0}
+.rcv .bl-cw{transform-origin:center bottom;transform:scale(.76)}
+.rcv .bl-cw .bl-cv{height:100%}
+.rcv .bl-ti{display:grid;text-align:center}
+.rcv .bl-tx{grid-area:1/1;opacity:0}
+.rcv .bl-mn .bl-tr,.rcv .bl-mn .bl-cw{transition:transform .45s ease}
+.rcv .bl-mn .bl-tx{transition:opacity .3s ease;visibility:hidden}
+.rcv .bl-dts{display:flex;justify-content:center}
+.rcv .bl-dts span,.rcv .bl-dts label{border-radius:50%;border:1.5px solid currentColor;background:transparent;opacity:.75}
+.rcv .bl-dts label{cursor:pointer}
+`,
+    pc: `
+.rcv .bl{padding:96px 0 104px}
+.rcv .bl-in{width:1195px;max-width:96%}
+.rcv .bl-sub{font-size:20px;line-height:1.5}
+.rcv .bl-tt{font-size:40px;line-height:1.35;margin-top:14px}
+.rcv .bl-ds{font-size:19px;line-height:1.8;margin-top:22px}
+.rcv .bl-gd{margin-top:58px}
+.rcv .bl-c1{grid-template-columns:1fr;gap:78px}
+.rcv .bl-c2{grid-template-columns:repeat(2,minmax(0,300px));justify-content:center;gap:52px 30px}
+.rcv .bl-c3{grid-template-columns:repeat(3,minmax(0,240px));justify-content:center;gap:48px 24px}
+.rcv .bl-bk{border-radius:18px}
+.rcv .bl-bt{font-size:22px;line-height:1.45;margin-top:24px}
+.rcv .bl-ba{font-size:16px;line-height:1.5;margin-top:8px}
+.rcv .bl-bc{font-size:17px;line-height:1.7;margin-top:13px}
+.rcv .bl-c1 .bl-cv{height:470px}
+.rcv .bl-c1 .bl-bt{font-size:30px;margin-top:32px}
+.rcv .bl-c1 .bl-ba{font-size:18px;margin-top:10px}
+.rcv .bl-c1 .bl-bc{font-size:20px;margin-top:16px}
+.rcv .bl-c2 .bl-cv{height:420px}
+.rcv .bl-c2 .bl-bt{font-size:24px}
+.rcv .bl-c3 .bl-cv{height:340px}
+.rcv .bl-bk:not(.bl-nb){padding:32px 28px 34px}
+.rcv .bl-sw{margin-top:58px}
+.rcv .bl-sl{padding:16px 0;width:900px;max-width:100%;margin:0 auto}
+.rcv .bl-sd{width:320px}
+.rcv .bl-tr{padding:0 calc(50% - 160px)}
+.rcv .bl-cw{height:430px}
+.rcv .bl-ti{margin-top:30px}
+.rcv .bl-ti .bl-ba{margin-top:0;font-size:17px}
+.rcv .bl-ti .bl-bt{margin-top:10px;font-size:26px}
+.rcv .bl-ti .bl-bc{margin-top:14px;font-size:18px}
+.rcv .bl-dts{gap:10px;margin-top:26px}
+.rcv .bl-dts span,.rcv .bl-dts label{width:10px;height:10px}
+`,
+
+    mo: `
+.rcv .bl{padding:88px 0 94px}
+.rcv .bl-in{width:88%}
+.rcv .bl-sub{font-size:26px;line-height:1.5}
+.rcv .bl-tt{font-size:44px;line-height:1.35;margin-top:18px}
+.rcv .bl-ds{font-size:25px;line-height:1.8;margin-top:26px}
+.rcv .bl-gd{margin-top:56px}
+.rcv .bl-c1{grid-template-columns:1fr;gap:80px}
+.rcv .bl-c2{grid-template-columns:repeat(2,1fr);gap:52px 18px}
+.rcv .bl-c3{grid-template-columns:repeat(3,1fr);gap:40px 10px}
+.rcv .bl-bk{border-radius:22px}
+.rcv .bl-bt{font-size:27px;line-height:1.45;margin-top:26px}
+.rcv .bl-ba{font-size:22px;line-height:1.5;margin-top:9px}
+.rcv .bl-bc{font-size:23px;line-height:1.7;margin-top:14px}
+.rcv .bl-c1 .bl-cv{height:620px}
+.rcv .bl-c1 .bl-bt{font-size:38px;margin-top:34px}
+.rcv .bl-c1 .bl-ba{font-size:25px;margin-top:11px}
+.rcv .bl-c1 .bl-bc{font-size:27px;margin-top:17px}
+.rcv .bl-c2 .bl-cv{height:430px}
+.rcv .bl-c2 .bl-bt{font-size:25px}
+.rcv .bl-c2 .bl-ba{font-size:20px}
+.rcv .bl-c2 .bl-bc{font-size:21px}
+.rcv .bl-c3 .bl-cv{height:292px}
+.rcv .bl-c3 .bl-bt{font-size:21px;line-height:1.4;margin-top:20px}
+.rcv .bl-c3 .bl-ba{font-size:17px;margin-top:7px}
+.rcv .bl-c3 .bl-bc{font-size:18px;line-height:1.6;margin-top:10px}
+.rcv .bl-bk:not(.bl-nb){padding:32px 24px 34px}
+.rcv .bl-c3 .bl-bk:not(.bl-nb){padding:24px 14px 26px}
+.rcv .bl-sw{margin-top:56px}
+.rcv .bl-sl{padding:16px 0}
+.rcv .bl-sd{width:400px}
+.rcv .bl-tr{padding:0 calc(50% - 200px)}
+.rcv .bl-cw{height:560px}
+.rcv .bl-ti{margin-top:34px}
+.rcv .bl-ti .bl-ba{margin-top:0;font-size:23px}
+.rcv .bl-ti .bl-bt{margin-top:12px;font-size:34px}
+.rcv .bl-ti .bl-bc{margin-top:16px;font-size:24px}
+.rcv .bl-dts{gap:14px;margin-top:30px}
+.rcv .bl-dts span,.rcv .bl-dts label{width:14px;height:14px}
+`,
+    anim(s, m){
+      if(s.blView !== 'slide') return '';
+      const B = blBooks(s.blBooks), n = B.length;
+      if(n < 2) return '';
+      const W = m ? +(400 / (MO_W / 100)).toFixed(3) + 'vw' : '320px';
+      const auto = !!s.blAuto;
+      let out = '';
+      if(!auto){
+        /* 점을 눌러 넘기기 */
+        for(let i = 0; i < n; i++){
+          const k = i + 1;
+          out += `.rcv #__NS__-bls${k}:checked ~ .bl-sl .bl-tr{transform:translateX(calc(-${i} * ${W}))}\n`;
+          out += `.rcv #__NS__-bls${k}:checked ~ .bl-sl .bl-sd${k} .bl-cw{transform:scale(1)}\n`;
+          out += `.rcv #__NS__-bls${k}:checked ~ .bl-ti .bl-tx${k}{opacity:1;visibility:visible}\n`;
+          out += `.rcv #__NS__-bls${k}:checked ~ .bl-dts .bl-dot${k}{background:currentColor}\n`;
+        }
+        return out;
+      }
+      /* 자동으로 넘기기 */
+      const sec = Math.max(2, +s.blSec || 4), D = n * sec;
+      const tr = Math.min(.6, sec / 3), f = tr / D * 100, step = 100 / n;
+      let kt = '';
+      for(let i = 0; i < n; i++){
+        const a = (i * step).toFixed(3), b = ((i + 1) * step - f).toFixed(3), x = `translateX(calc(-${i} * ${W}))`;
+        kt += `${a}%{transform:${x}}${b}%{transform:${x}}`;
+      }
+      kt += `100%{transform:translateX(calc(-${n} * ${W}))}`;
+      const h = (step - f).toFixed(3), e = (100 - f).toFixed(3);
+      const kz = `0%{transform:scale(1)}${h}%{transform:scale(1)}${step.toFixed(3)}%{transform:scale(.76)}${e}%{transform:scale(.76)}100%{transform:scale(1)}`;
+      const kx = `0%{opacity:1}${h}%{opacity:1}${step.toFixed(3)}%{opacity:0}${e}%{opacity:0}100%{opacity:1}`;
+      const P = (step - 0.02).toFixed(3), P2 = (step - 0.01).toFixed(3);
+      out += `@-webkit-keyframes __NS__-blsl{${kt}}\n@keyframes __NS__-blsl{${kt}}\n`;
+      out += `@-webkit-keyframes __NS__-blzm{${kz}}\n@keyframes __NS__-blzm{${kz}}\n`;
+      out += `@-webkit-keyframes __NS__-bltx{${kx}}\n@keyframes __NS__-bltx{${kx}}\n`;
+      out += `@-webkit-keyframes __NS__-bldt{0%,${P}%{background:currentColor}${P2}%,100%{background:transparent}}\n@keyframes __NS__-bldt{0%,${P}%{background:currentColor}${P2}%,100%{background:transparent}}\n`;
+      out += `.rcv .bl-tr{-webkit-animation:__NS__-blsl ${D}s ease-in-out infinite;animation:__NS__-blsl ${D}s ease-in-out infinite}\n`;
+      out += `.rcv .bl-cw{-webkit-animation:__NS__-blzm ${D}s ease-in-out infinite;animation:__NS__-blzm ${D}s ease-in-out infinite}\n`;
+      out += `.rcv .bl-tx{-webkit-animation:__NS__-bltx ${D}s ease-in-out infinite;animation:__NS__-bltx ${D}s ease-in-out infinite}\n`;
+      out += `.rcv .bl-dts span{-webkit-animation:__NS__-bldt ${D}s linear infinite;animation:__NS__-bldt ${D}s linear infinite}\n`;
+      for(let i = 1; i <= n; i++){
+        const d = (-(i * sec)).toFixed(3);
+        out += `.rcv .bl-sd${i + 1} .bl-cw,.rcv .bl-tx${i + 1}{-webkit-animation-delay:${d}s;animation-delay:${d}s}\n`;
+      }
+      out += `@media (hover:hover){.rcv .bl-sw:hover .bl-tr,.rcv .bl-sw:hover .bl-cw,.rcv .bl-sw:hover .bl-tx,.rcv .bl-sw:hover .bl-dts span{animation-play-state:paused}}\n`;
+      return out;
+    }
+  },
+  validate(s, o){
+    if(s.use_bl && !blHas(s)){ o.push(['i', '도서 목록 영역이 비어 있어 표시되지 않아요.']); return; }
+    if(!s.use_bl) return;
+    const B = blBooks(s.blBooks);
+    const all = lines(s.blBooks).filter(l => String(l).replace(/\|/g, '').trim()).length;
+    const noCov = B.filter(b => !blCover(b)).length, noLink = B.filter(b => !blLink(b)).length;
+    o.push(['g', s.blView === 'slide'
+      ? `도서 ${B.length}권 · 슬라이드 (가운데 표지 크게 · 양옆 살짝) · ${s.blAuto ? `${Math.max(2, +s.blSec || 4)}초마다 자동으로 넘어가요` : '아래 점을 눌러 넘겨요'}`
+      : `도서 ${B.length}권 · 가로 ${s.blCols}권씩 (PC · 모바일 동일)`]);
+    if(s.blView === 'slide' && B.length < 2) o.push(['i', '도서가 1권이라 슬라이드가 움직이지 않아요.']);
+    if(all > BL_MAX) o.push(['w', `${BL_MAX}권을 넘어 뒷부분은 표시되지 않아요.`]);
+    if(noCov) o.push(['w', `${noCov}권에 표지가 없어요. 첫 칸에 ISBN 또는 표지 주소를 넣어 주세요.`]);
+    if(noLink) o.push(['w', `${noLink}권에 도서 링크가 없어요. 마지막 칸에 판매상품ID(S로 시작)를 넣으면 자동으로 연결돼요.`]);
+    o.push(['g', 'ISBN · 판매상품ID 로 교보 표지 · 상품 주소를 자동으로 만들어요.']);
+  },
+  lint(code, mode, add){
+    if(/contents\.kyobobook\.co\.kr\/sih\/fit-in/.test(code)) add('i', '표지 이미지는 교보 표준 주소(fit-in/458x0)를 사용해요.');
+  },
+  eventTitle: s => lines(s.blTitle).join(' ').replace(/\*\*/g, ''),
+  fixState(S){ if(S.blCols !== '1' && S.blCols !== '2' && S.blCols !== '3') S.blCols = '3';
+    if(S.blView !== 'list' && S.blView !== 'slide') S.blView = 'list'; }
+});
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   [도서 목록(긴 소개)]  id: book_list_long
+   한 권씩 길게 소개하는 목록 — 표지 + 도서명 + 저자 + 한 줄 요약 + 긴 소개글
+   배치 3가지: 가로형(표지 왼쪽) · 지그재그(좌우 번갈아) · 세로형(표지 위)
+   모바일은 글 폭을 확보하려고 항상 세로형으로 바뀐다
+   ISBN / 판매상품ID 만 넣으면 표지 주소와 상품 링크가 자동으로 만들어진다
+   PC 3000px(중앙 1195px 안) · 모바일 750px
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+const LB_MAX = 12, LB_LIMIT = 300;
+const lbList = s => Array.isArray(s.lbItems) ? s.lbItems : [];
+const lbLen = t => String(t || '').replace(/\s+/g, '').length;
+const lbFull = x => [x.title, x.auth, x.lead, x.body].some(v => String(v || '').trim()) ||
+  String(x.isbn || '').trim() || String(x.cover || '').trim();
+const lbHas = s => lines(s.lbTitle).length > 0 || lines(s.lbSub).length > 0 || paras(s.lbDesc).length > 0 ||
+  lbList(s).some(lbFull);
+function lbCover(x){
+  const direct = String(x.cover || '').trim();
+  if(direct) return direct;
+  const v = String(x.isbn || '').trim();
+  if(/:\/\//.test(v)) return v;
+  const d = v.replace(/[^0-9]/g, '');
+  return /^\d{10,13}$/.test(d) ? `https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/${d}.jpg` : '';
+}
+function lbLink(x){
+  const direct = String(x.link || '').trim();
+  if(/^https?:\/\//.test(direct)) return direct;
+  const v = String(x.pid || '').trim();
+  if(/:\/\//.test(v)) return v;
+  return /^[Ss]\d{6,}$/.test(v) ? `https://product.kyobobook.co.kr/detail/${v.toUpperCase()}` : '';
+}
+function lbCut(t, n){
+  const out = []; let cnt = 0;
+  for(const ch of String(t || '')){
+    out.push(ch);
+    if(!/\s/.test(ch)) cnt++;
+    if(cnt >= n) break;
+  }
+  return out.join('').replace(/\s+$/, '') + '…';
+}
+function lbBody(s, txt){
+  if(!paras(txt).length) return '';
+  const full = `<div class="lb-bw">${pHTML(txt)}</div>`;
+  if(!(s.use_lbFold && lbLen(txt) > LB_LIMIT)) return `<div class="lb-bd">${full}</div>`;
+  return `<div class="lb-bd"><details class="lb-dt"><summary class="lb-sm">
+    <div class="lb-pv">${pHTML(lbCut(txt, LB_LIMIT))}</div>
+    <span class="lb-bt2"><span class="lb-o">소개글 전문 보기</span><span class="lb-c">접기</span></span>
+  </summary>${full}</details></div>`;
+}
+function lbCard(s, x){
+  if(!lbFull(x)) return '';
+  const cov = lbCover(x), lk = lbLink(x), title = String(x.title || '').trim();
+  const img = cov ? `<img src="${escA(cov)}" alt="${escA(title || '도서')} 표지">` : '<span class="lb-ce"></span>';
+  const cv = `<div class="lb-cv">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${img}</a>` : img}</div>`;
+  const bt = title ? `<p class="lb-tt2">${lk ? `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${md(title)}</a>` : md(title)}</p>` : '';
+  const ba = s.use_lbAuth && String(x.auth || '').trim() ? `<p class="lb-ba">${esc(x.auth)}</p>` : '';
+  const ld = s.use_lbLead && lines(x.lead).length ? `<p class="lb-ld">${lines(x.lead).map(md).join('<br>')}</p>` : '';
+  return `<div class="lb-bk">${cv}<div class="lb-tx">${bt}${ba}${ld}${lbBody(s, x.body)}</div></div>`;
+}
+function lbBlock(s, m){
+  const L = lbList(s).filter(lbFull);
+  const cards = L.map(x => lbCard(s, x)).join('');
+  const bg = s.lbBg1 === s.lbBg2 ? s.lbBg1
+    : `linear-gradient(${s.lbDir === 'r' ? '135deg' : s.lbDir === 'u' ? '0deg' : '180deg'},${s.lbBg1} 0%,${s.lbBg2} 100%)`;
+  const head = `${s.use_lbSub && lines(s.lbSub).length ? `<p class="lb-sub">${lines(s.lbSub).map(esc).join('<br>')}</p>` : ''}
+    ${s.use_lbTitle && lines(s.lbTitle).length ? `<h3 class="tt lb-tt">${lines(s.lbTitle).map(esc).join('<br>')}</h3>` : ''}
+    ${s.use_lbDesc && paras(s.lbDesc).length ? `<div class="lb-ds">${pHTML(s.lbDesc)}</div>` : ''}`;
+  const common = `${s.lbSize === 'l' ? ' lb-l' : ''}${s.use_lbCard ? ' lb-cd' : ''}`;
+  let body = '';
+  /* 슬라이드 — 숨긴 라디오 + 도서명 버튼, 패널을 겹쳐 두어 영역 높이가 흔들리지 않는다 */
+  if(s.lbView === 's' && L.length){
+    const n = L.length, auto = !!s.lbAuto && n > 1, sec = Math.max(3, +s.lbSec || 7);
+    const seq = auto ? L.concat([L[0]]) : L;
+    const sd = seq.map((x, i) => `<div class="lb-sd lb-sd${i + 1}">${lbCard(s, x)}</div>`).join('');
+    const num = L.map((x, i) => `<span class="lb-num lb-num${i + 1}">${String(i + 1).padStart(2, '0')}</span>`).join('');
+    const pg = n > 1 ? `<div class="lb-pg"><span class="lb-cnt">${num}</span><span class="lb-tot">- ${String(n).padStart(2, '0')}</span></div>` : '';
+    const rd = (!auto && n > 1) ? L.map((x, i) => `<input class="lb-r" type="radio" name="__NS__-lbsl" id="__NS__-lbs${i+1}"${i ? '' : ' checked'}>`).join('') : '';
+    const dots = n > 1
+      ? `<div class="lb-dts">${L.map((x, i) => auto
+          ? `<span style="animation-delay:${i * sec}s"></span>`
+          : `<label class="lb-dot lb-dot${i+1}" for="__NS__-lbs${i+1}"><span class="e_hidden">${i+1}번 도서 보기</span></label>`).join('')}</div>`
+      : '';
+    body = `<div class="lb-sw lb-cf${auto ? '' : ' lb-mn'}${common}">${rd}
+      <div class="lb-sl"><div class="lb-tr">${sd}</div></div>${pg}${dots}</div>`;
+  } else if(cards){
+    body = `<div class="lb-ls lb-v${s.lbView}${common}${s.use_lbLine ? ' lb-dv' : ''}">${cards}</div>`;
+  }
+  return `<div class="sec lb" style="background:${bg}"><div class="lb-in">
+  ${head.trim() ? `<div class="lb-top">${head}</div>` : ''}
+  ${body}
+</div></div>`;
+}
+const SCHEMA = {
+  id: 'lb', t: '도서 목록(긴 소개)', d: '스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_lb',
+  f: [
+    {t:'sel', k:'lbView', l:'배치', o:[['h','가로형 — 표지 왼쪽 · 글 오른쪽'],['z','지그재그 — 표지가 좌우로 번갈아'],['v','세로형 — 표지 위 · 글 아래'],['s','슬라이드 — 한 권씩, 다음 책이 오른쪽에 살짝']],
+      h:'모바일은 글 폭을 확보하려고 가로형·지그재그도 세로형으로 나와요.<br>슬라이드는 한 권씩 보여 주고 다음 책 표지가 오른쪽에 살짝 걸칩니다. 자바스크립트 없이 동작해요.'},
+    {t:'row', f:[
+      {t:'sw', k:'lbAuto', l:'슬라이드 자동으로 넘기기', h:'끄면 아래 점을 눌러 넘깁니다. 소개글이 길면 꺼 두시길 권해 드려요.'},
+      {t:'text', k:'lbSec', l:'자동 넘김 간격 (초)', ph:'7', h:'자동으로 넘길 때만 쓰여요.'}
+    ]},
+    {t:'row', f:[
+      {t:'sel', k:'lbSize', l:'표지 크기', o:[['m','보통'],['l','크게']]},
+      {t:'tc', k:'lbC', l:'배경 위 글자색'}
+    ]},
+    {t:'row', f:[{t:'color', k:'lbBg1', l:'배경색 ①'}, {t:'color', k:'lbBg2', l:'배경색 ②'}]},
+    {t:'sel', k:'lbDir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
+    {t:'sw', k:'use_lbSub', l:'서브 제목 사용'},
+    {t:'area', k:'lbSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
+    {t:'sw', k:'use_lbTitle', l:'제목 사용'},
+    {t:'area', k:'lbTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요.'},
+    {t:'sw', k:'use_lbDesc', l:'영역 설명 사용'},
+    {t:'area', k:'lbDesc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게'},
+    {t:'det', l:'카드 모양 설정', f:[
+      {t:'row', f:[
+        {t:'sw', k:'use_lbAuth', l:'저자 · 출판사 표시'},
+        {t:'sw', k:'use_lbLead', l:'한 줄 요약 사용'}
+      ]},
+      {t:'row', f:[
+        {t:'sw', k:'use_lbLine', l:'도서 사이 구분선'},
+        {t:'sw', k:'use_lbCard', l:'카드 배경 사용'}
+      ]},
+      {t:'row', f:[{t:'color', k:'lbCard', l:'카드 배경색'}, {t:'tc', k:'lbCardC', l:'카드 안 글자색'}]},
+      {t:'sw', k:'use_lbFold', l:`소개글이 길면 전문 보기 버튼 쓰기`, h:`공백을 뺀 글자 수가 ${LB_LIMIT}자를 넘는 소개글에만 생겨요. (스크립트 없이 동작)`}
+    ]},
+    {t:'custom', id:'lb_items'}
+  ]
+};
+SCHEMA.f.find(f => f.t === 'custom').render = () => `<div class="f"><label>도서 <span class="badge">최대 ${LB_MAX}권</span></label>
+  <div id="lbList"></div>
+  <div class="bar"><button type="button" class="pill" id="lbAdd">도서 추가</button>
+    <span class="hint" style="margin:0">ISBN · 판매상품ID 만 넣으면 표지와 링크가 자동으로 만들어져요.</span></div></div>`;
+function lbChip(x){
+  return `표지 ${lbCover(x) ? '✓' : '—'} · 링크 ${lbLink(x) ? '✓' : '—'} · 소개글 ${lbLen(x.body)}자`;
+}
+function renderLb(){
+  const box = $('#lbList'); if(!box) return;
+  const L = lbList(S);
+  box.innerHTML = L.map((x, i) => `<div class="xvset">
+    <div class="ivh"><b>${i+1}번 도서</b><span class="hint" style="margin:0">${lbChip(x)}</span><span class="sp"></span>
+      <button type="button" class="mini" data-lbm="up:${i}" title="위로">↑</button>
+      <button type="button" class="mini" data-lbm="dn:${i}" title="아래로">↓</button>
+      <button type="button" class="mini x" data-lbm="rm:${i}" title="삭제">✕</button></div>
+    <div class="row2">
+      <div class="f"><label>ISBN</label><input type="text" data-lb="${i}:isbn" value="${escA(x.isbn)}" placeholder="9791194273448">
+        <div class="hint">표지 주소가 자동으로 만들어져요.</div></div>
+      <div class="f"><label>판매상품ID</label><input type="text" data-lb="${i}:pid" value="${escA(x.pid)}" placeholder="S000220568117">
+        <div class="hint">상품 링크가 자동으로 만들어져요.</div></div>
+    </div>
+    <div class="row2">
+      <div class="f"><label>도서명</label><input type="text" data-lb="${i}:title" value="${escA(x.title)}" placeholder="도서명을 입력해 주세요"></div>
+      <div class="f"><label>저자 · 출판사</label><input type="text" data-lb="${i}:auth" value="${escA(x.auth)}" placeholder="지은이 지음 · 출판사"></div>
+    </div>
+    <div class="f"><label>한 줄 요약</label><input type="text" data-lb="${i}:lead" value="${escA(x.lead)}" placeholder="소개글 위에 들어가는 짧은 문구">
+      <div class="hint">강조 색으로 표시돼요. **문구**로 감싸면 더 굵게</div></div>
+    <div class="f"><label>소개글</label><textarea data-lb="${i}:body" rows="7" spellcheck="false">${esc(x.body)}</textarea>
+      <div class="hint">빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게</div></div>
+    <details class="det"><summary>표지 · 링크 직접 넣기 (ISBN 대신 쓸 때만)</summary>
+      <div class="f"><label>표지 이미지 주소</label><input type="url" data-lb="${i}:cover" value="${escA(x.cover)}" placeholder="https://contents.kyobobook.co.kr/..."></div>
+      <div class="f"><label>도서 링크 주소</label><input type="url" data-lb="${i}:link" value="${escA(x.link)}" placeholder="https://product.kyobobook.co.kr/detail/..."></div>
+    </details>
+  </div>`).join('') || '<div class="hint" style="margin:0 0 10px">아직 도서가 없어요.</div>';
+  const b = $('#lbAdd'); if(b) b.disabled = L.length >= LB_MAX;
+}
+let lbT = null;
+document.addEventListener('input', e => {
+  const d = (e.target.dataset || {}).lb; if(!d) return;
+  const [i, k] = d.split(':');
+  S.lbItems[+i][k] = e.target.value;
+  const head = e.target.closest('.xvset'); if(head){ const h = head.querySelector('.ivh .hint'); if(h) h.textContent = lbChip(S.lbItems[+i]); }
+  clearTimeout(lbT); lbT = setTimeout(sched, 140);
+});
+document.addEventListener('click', e => {
+  const m = e.target.closest('[data-lbm]');
+  if(m){
+    const [a, i] = m.dataset.lbm.split(':'), n = +i, L = S.lbItems;
+    if(a === 'rm') L.splice(n, 1);
+    if(a === 'up' && n > 0) [L[n-1], L[n]] = [L[n], L[n-1]];
+    if(a === 'dn' && n < L.length-1) [L[n+1], L[n]] = [L[n], L[n+1]];
+    renderLb(); sched(); return;
+  }
+  if(e.target.id === 'lbAdd'){
+    if(S.lbItems.length >= LB_MAX){ toast(`도서는 ${LB_MAX}권까지 넣을 수 있어요.`); return; }
+    S.lbItems.push({isbn:'', pid:'', title:'', auth:'', lead:'', body:'', cover:'', link:''});
+    renderLb(); sched();
+    const last = document.querySelector(`[data-lb="${S.lbItems.length-1}:isbn"]`); if(last) last.focus();
+  }
+});
+registerModule({
+  id: 'book_list_long',
+  name: '도서 목록(긴 소개)',
+  group: '추천 · 후기',
+  defaults: {
+    use_lb: true, lbView: 'h', lbSize: 'm', lbBg1: '#ffffff', lbBg2: '#f6f3ec', lbDir: 'd', lbC: 'k',
+    use_lbSub: true, lbSub: '한 권씩 자세히',
+    use_lbTitle: true, lbTitle: '천천히 소개해 드리고 싶은 책',
+    use_lbDesc: true, lbDesc: '짧은 소개만으로는 아쉬운 책들을 골랐습니다.\n표지를 누르시면 상세 페이지로 이동합니다.',
+    use_lbAuth: true, use_lbLead: true, use_lbLine: true,
+    use_lbCard: false, lbCard: '#ffffff', lbCardC: 'k', use_lbFold: false, lbAuto: false, lbSec: '7',
+    lbItems: [
+      {isbn:'', pid:'', title:'물성과 여백', auth:'정하윤 지음 · 담담',
+       lead:'빠르게 읽히지만 쉽게 잊히지 않는 책',
+       body:'사물을 오래 들여다보는 일에 관한 책입니다. 저자는 손에 쥘 수 있는 것들의 무게와 질감을 따라가며, 그것이 우리의 기억에 어떻게 남는지를 차분히 적어 내려갑니다.\n\n문장은 짧고 담백하지만 장면이 또렷하게 떠올라, 읽는 속도가 자연스럽게 느려집니다. 마지막 장을 덮고 나면 평소 지나치던 물건들이 조금 다르게 보입니다.\n\n무엇을 더 읽어야 할지 고민하고 계신 분들께 망설임 없이 권해 드리고 싶습니다.', cover:'', link:''},
+      {isbn:'', pid:'', title:'밤의 지도', auth:'서지후 지음 · 모래책방',
+       lead:'함께 읽고 이야기 나누기 좋은 책',
+       body:'도시의 밤을 걸으며 기록한 산문집입니다. 같은 길도 시간에 따라 전혀 다른 얼굴을 보여 준다는 사실을, 저자는 담담한 관찰로 증명해 보입니다.\n\n서로 다른 밑줄이 그어진다는 점이 이 책의 가장 큰 매력입니다. 독서 모임의 첫 책으로도 잘 어울립니다.', cover:'', link:''},
+      {isbn:'', pid:'', title:'조용한 관찰자', auth:'이연 지음 · 푸른여름',
+       lead:'오랜만에 책을 집어 드는 분께',
+       body:'두께에 비해 문턱이 낮은 책입니다. 한 편의 길이가 짧아 어디서 펼쳐도 부담이 없고, 그러면서도 한 편마다 남는 것이 분명합니다.\n\n읽고 난 뒤의 고요함이 오래 이어져, 하루의 끝에 조금씩 읽어 나가기를 권해 드립니다.', cover:'', link:''}
+    ]
+  },
+  schema: SCHEMA,
+  has: s => lbHas(s),
+  render: (s, m) => lbBlock(s, m),
+  vars: s => `--c-lb:${TC[s.lbC]};--c-lbcd:${TC[s.lbCardC]};--lb-cdbg:${s.use_lbCard ? s.lbCard : 'transparent'}`,
+  css: {
+    shared: `
+.rcv .lb-in{margin:0 auto;color:var(--c-lb)}
+.rcv .lb-top{text-align:center}
+.rcv .lb-sub{opacity:.78}
+.rcv .lb-tt{color:var(--pt)}
+.rcv .lb-ds{opacity:.88}
+.rcv .lb-ds b{color:var(--pt)}
+.rcv .lb-ds p+p{margin-top:.7em}
+.rcv .lb-ls{display:flex;flex-direction:column}
+.rcv .lb-bk{display:flex;min-width:0;position:relative}
+.rcv .lb-cd .lb-bk{background:var(--lb-cdbg);color:var(--c-lbcd)}
+.rcv .lb-cv{flex:none;display:flex;align-items:flex-start;justify-content:center}
+.rcv .lb-cv a{display:block}
+.rcv .lb-cv img{width:auto;max-width:100%;max-height:100%;filter:drop-shadow(0 7px 18px rgba(18,35,63,.22))}
+.rcv .lb-ce{display:block;width:100%;height:100%;border-radius:4px;background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.rcv .lb-tx{flex:1 1 auto;min-width:0}
+.rcv .lb-tt2{font-weight:700;font-family:var(--f-head);letter-spacing:-.02em}
+.rcv .lb-tt2 a{display:inline}
+.rcv .lb-ba{opacity:.62}
+.rcv .lb-ld{color:var(--pt);font-weight:700;font-family:var(--f-head)}
+.rcv .lb-bd p+p{margin-top:.9em}
+.rcv .lb-bd b{font-weight:700;color:var(--pt)}
+/* 지그재그 — 짝수 번째는 표지를 오른쪽으로 */
+.rcv .lb-vz .lb-bk:nth-child(even){flex-direction:row-reverse}
+/* 세로형 — 표지 위, 글 아래 (표지·도서명은 가운데, 긴 소개글은 왼쪽 정렬) */
+.rcv .lb-vv .lb-bk{flex-direction:column;align-items:center}
+.rcv .lb-vv .lb-tx{width:100%}
+.rcv .lb-vv .lb-tt2,.rcv .lb-vv .lb-ba,.rcv .lb-vv .lb-ld{text-align:center}
+/* 슬라이드 — 한 권씩, 다음 책 표지가 오른쪽에 살짝 걸친다 (CSS 로만 동작) */
+.rcv .lb-r{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rcv .lb-sl{overflow:hidden}
+.rcv .lb-tr{display:flex;align-items:flex-start}
+.rcv .lb-sd{flex:none;min-width:0}
+.rcv .lb-mn .lb-tr{transition:transform .45s ease}
+.rcv .lb-pg{display:flex;align-items:center;justify-content:center;max-width:max-content;margin-left:auto;margin-right:auto;border-radius:999px;background:rgba(0,0,0,.05);font-variant-numeric:tabular-nums}
+.rcv .lb-cnt{display:grid}
+.rcv .lb-num{grid-area:1/1;opacity:0;font-weight:700}
+.rcv .lb-mn .lb-num{transition:opacity .25s ease}
+.rcv .lb-tot{opacity:.55}
+.rcv .lb-dts{display:flex;justify-content:center}
+.rcv .lb-dts span,.rcv .lb-dts label{border-radius:50%;border:1.5px solid currentColor;background:transparent;opacity:.75}
+.rcv .lb-dts label{cursor:pointer}
+/* 전문 보기 */
+.rcv .lb-dt{display:flex;flex-direction:column}
+.rcv .lb-dt[open] .lb-sm{order:2}
+.rcv .lb-dt summary{display:block;cursor:pointer;list-style:none}
+.rcv .lb-dt summary::-webkit-details-marker{display:none}
+.rcv .lb-pv p+p{margin-top:.9em}
+.rcv .lb-bt2{display:block;font-weight:700;color:var(--pt);opacity:.9}
+.rcv .lb-c{display:none}
+.rcv .lb-dt[open] .lb-pv{display:none}
+.rcv .lb-dt[open] .lb-o{display:none}
+.rcv .lb-dt[open] .lb-c{display:inline}
+`,
+    pc: `
+.rcv .lb{padding:96px 0 104px}
+.rcv .lb-in{width:1195px;max-width:96%}
+.rcv .lb-sub{font-size:20px;line-height:1.5}
+.rcv .lb-tt{font-size:40px;line-height:1.35;margin-top:14px}
+.rcv .lb-ds{font-size:19px;line-height:1.8;margin-top:22px}
+.rcv .lb-ls{gap:56px;margin-top:62px}
+.rcv .lb-bk{gap:52px;align-items:flex-start}
+.rcv .lb-cv{width:230px;height:330px}
+.rcv .lb-l .lb-cv{width:290px;height:420px}
+.rcv .lb-tt2{font-size:28px;line-height:1.4}
+.rcv .lb-ba{font-size:17px;line-height:1.5;margin-top:10px}
+.rcv .lb-ld{font-size:20px;line-height:1.6;margin-top:20px}
+.rcv .lb-bd{font-size:18px;line-height:1.9;margin-top:18px}
+.rcv .lb-bt2{font-size:16px;padding-top:12px}
+.rcv .lb-dv .lb-bk:not(:last-child){padding-bottom:56px}
+.rcv .lb-dv .lb-bk:not(:last-child)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;opacity:.13}
+.rcv .lb-cd .lb-bk{border-radius:20px;padding:40px 44px}
+.rcv .lb-cd.lb-dv .lb-bk:not(:last-child){padding-bottom:40px}
+.rcv .lb-cd.lb-dv .lb-bk::after{display:none}
+.rcv .lb-vv .lb-bk{gap:0}
+.rcv .lb-vv .lb-cv{width:250px;height:360px}
+.rcv .lb-vv .lb-tt2{margin-top:34px}
+.rcv .lb-vv .lb-bd{max-width:860px;margin-left:auto;margin-right:auto}
+.rcv .lb-sw{margin-top:54px}
+.rcv .lb-sl{padding:14px 0}
+.rcv .lb-sd{width:920px;padding-right:40px}
+.rcv .lb-tr{padding:0 calc(50% - 460px)}
+.rcv .lb-pg{gap:7px;margin-top:34px;padding:7px 20px;font-size:17px}
+.rcv .lb-tot{font-size:16px}
+.rcv .lb-dts{gap:10px;margin-top:20px}
+.rcv .lb-dts span,.rcv .lb-dts label{width:10px;height:10px}
+.rcv .lb-cd .lb-sd > .lb-bk{border-radius:20px;padding:40px 44px}
+`,
+    mo: `
+.rcv .lb{padding:88px 0 94px}
+.rcv .lb-in{width:88%}
+.rcv .lb-sub{font-size:26px;line-height:1.5}
+.rcv .lb-tt{font-size:44px;line-height:1.35;margin-top:18px}
+.rcv .lb-ds{font-size:25px;line-height:1.8;margin-top:26px}
+.rcv .lb-ls{gap:64px;margin-top:60px}
+.rcv .lb-bk{flex-direction:column;align-items:center;gap:0}
+.rcv .lb-cv{width:300px;height:430px}
+.rcv .lb-l .lb-cv{width:360px;height:516px}
+.rcv .lb-tx{width:100%}
+.rcv .lb-tt2{font-size:34px;line-height:1.4;margin-top:36px;text-align:center}
+.rcv .lb-ba{font-size:23px;line-height:1.5;margin-top:12px;text-align:center}
+.rcv .lb-ld{font-size:27px;line-height:1.6;margin-top:24px;text-align:center}
+.rcv .lb-bd{font-size:25px;line-height:1.9;margin-top:24px}
+.rcv .lb-bt2{font-size:23px;padding-top:16px;text-align:center}
+.rcv .lb-dv .lb-bk:not(:last-child){padding-bottom:64px}
+.rcv .lb-dv .lb-bk:not(:last-child)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;opacity:.13}
+.rcv .lb-cd .lb-bk{border-radius:26px;padding:44px 36px 48px}
+.rcv .lb-cd.lb-dv .lb-bk:not(:last-child){padding-bottom:44px}
+.rcv .lb-cd.lb-dv .lb-bk::after{display:none}
+.rcv .lb-sw{margin-top:52px}
+.rcv .lb-sl{padding:14px 0}
+.rcv .lb-sd{width:100%}
+.rcv .lb-tr{padding:0}
+.rcv .lb-pg{gap:9px;margin-top:36px;padding:9px 26px;font-size:24px}
+.rcv .lb-tot{font-size:23px}
+.rcv .lb-dts{gap:14px;margin-top:24px}
+.rcv .lb-dts span,.rcv .lb-dts label{width:14px;height:14px}
+.rcv .lb-cd .lb-sd > .lb-bk{border-radius:26px;padding:44px 36px 48px}
+`,
+    anim(s, m){
+      if(s.lbView !== 's') return '';
+      const L = lbList(s).filter(lbFull), n = L.length;
+      if(n < 2) return '';
+      /* PC 는 고정폭 슬라이드(양옆 여백으로 가운데 정렬), 모바일은 한 칸이 화면 전체 */
+      const at = i => m ? `translateX(-${(i * 100 / n).toFixed(4)}%)` : `translateX(calc(-${i} * 920px))`;
+      const auto = !!s.lbAuto;
+      let out = '';
+      if(!auto){
+        for(let i = 0; i < n; i++){
+          const k = i + 1;
+          out += `.rcv #__NS__-lbs${k}:checked ~ .lb-sl .lb-tr{transform:${at(i)}}\n`;
+          out += `.rcv #__NS__-lbs${k}:checked ~ .lb-pg .lb-num${k}{opacity:1}\n`;
+          out += `.rcv #__NS__-lbs${k}:checked ~ .lb-dts .lb-dot${k}{background:currentColor}\n`;
+        }
+        return out;
+      }
+      const sec = Math.max(3, +s.lbSec || 7), D = n * sec;
+      const tr = Math.min(.7, sec / 4), f = tr / D * 100, step = 100 / n;
+      let kt = '';
+      for(let i = 0; i < n; i++){
+        const a = (i * step).toFixed(3), b = ((i + 1) * step - f).toFixed(3);
+        kt += `${a}%{transform:${at(i)}}${b}%{transform:${at(i)}}`;
+      }
+      kt += `100%{transform:${at(n)}}`;
+      const h = (step - f).toFixed(3), e = (100 - f).toFixed(3);
+      const kx = `0%{opacity:1}${h}%{opacity:1}${step.toFixed(3)}%{opacity:0}${e}%{opacity:0}100%{opacity:1}`;
+      const P = (step - 0.02).toFixed(3), P2 = (step - 0.01).toFixed(3);
+      out += `@-webkit-keyframes __NS__-lbsl{${kt}}\n@keyframes __NS__-lbsl{${kt}}\n`;
+      out += `@-webkit-keyframes __NS__-lbnm{${kx}}\n@keyframes __NS__-lbnm{${kx}}\n`;
+      out += `@-webkit-keyframes __NS__-lbdt{0%,${P}%{background:currentColor}${P2}%,100%{background:transparent}}\n@keyframes __NS__-lbdt{0%,${P}%{background:currentColor}${P2}%,100%{background:transparent}}\n`;
+      out += `.rcv .lb-tr{-webkit-animation:__NS__-lbsl ${D}s ease-in-out infinite;animation:__NS__-lbsl ${D}s ease-in-out infinite}\n`;
+      out += `.rcv .lb-num{-webkit-animation:__NS__-lbnm ${D}s ease-in-out infinite;animation:__NS__-lbnm ${D}s ease-in-out infinite}\n`;
+      out += `.rcv .lb-dts span{-webkit-animation:__NS__-lbdt ${D}s linear infinite;animation:__NS__-lbdt ${D}s linear infinite}\n`;
+      for(let i = 1; i < n; i++){
+        const d = (-(i * sec)).toFixed(3);
+        out += `.rcv .lb-num${i + 1}{-webkit-animation-delay:${d}s;animation-delay:${d}s}\n`;
+      }
+      out += `@media (hover:hover){.rcv .lb-sw:hover .lb-tr,.rcv .lb-sw:hover .lb-num,.rcv .lb-sw:hover .lb-dts span{animation-play-state:paused}}\n`;
+      return out;
+    }
+  },
+  validate(s, o){
+    if(s.use_lb && !lbHas(s)){ o.push(['i', '도서 목록(긴 소개) 영역이 비어 있어 표시되지 않아요.']); return; }
+    if(!s.use_lb) return;
+    const L = lbList(s).filter(lbFull);
+    const noCov = L.filter(x => !lbCover(x)).length, noLink = L.filter(x => !lbLink(x)).length;
+    const long = L.filter(x => lbLen(x.body) > LB_LIMIT).length;
+    const view = {h:'가로형', z:'지그재그', v:'세로형', s:'슬라이드'}[s.lbView] || '가로형';
+    o.push(['g', s.lbView === 's'
+      ? `도서 ${L.length}권 (최대 ${LB_MAX}권) · 슬라이드 · ${s.lbAuto ? `${Math.max(3, +s.lbSec || 7)}초마다 자동으로 넘어가요` : '아래 점을 눌러 넘겨요'}`
+      : `도서 ${L.length}권 (최대 ${LB_MAX}권) · PC ${view} / 모바일 세로형`]);
+    if(s.lbView === 's' && L.length < 2) o.push(['i', '도서가 1권이라 슬라이드가 움직이지 않아요.']);
+    if(noCov) o.push(['w', `${noCov}권에 표지가 없어요. ISBN 또는 표지 주소를 넣어 주세요.`]);
+    if(noLink) o.push(['w', `${noLink}권에 도서 링크가 없어요. 판매상품ID(S로 시작)를 넣으면 자동으로 연결돼요.`]);
+    if(s.use_lbFold && long) o.push(['g', `소개글이 ${LB_LIMIT}자를 넘어 전문 보기 버튼이 생기는 도서 ${long}권 (스크립트 없이 동작)`]);
+    else if(!s.use_lbFold && long) o.push(['i', `소개글이 ${LB_LIMIT}자를 넘는 도서가 ${long}권 있어요. 길이가 부담되면 '전문 보기 버튼'을 켜 보세요.`]);
+  },
+  lint(code, mode, add){
+    if(/contents\.kyobobook\.co\.kr\/sih\/fit-in/.test(code)) add('i', '표지 이미지는 교보 표준 주소(fit-in/458x0)를 사용해요.');
+  },
+  eventTitle: s => lines(s.lbTitle).join(' ').replace(/\*\*/g, ''),
+  afterForm: renderLb,
+  fixState(S){
+    if(!Array.isArray(S.lbItems)) S.lbItems = [];
+    S.lbItems = S.lbItems.slice(0, LB_MAX).map(x => ({
+      isbn: String(x && x.isbn || ''), pid: String(x && x.pid || ''), title: String(x && x.title || ''),
+      auth: String(x && x.auth || ''), lead: String(x && x.lead || ''), body: String(x && x.body || ''),
+      cover: String(x && x.cover || ''), link: String(x && x.link || '')
+    }));
+    if(['h','z','v','s'].indexOf(S.lbView) < 0) S.lbView = 'h';
+  }
+});
+})();
+
+/* ═══════════════════════════════════════════════════════════════
    [추천 도서(1인 1권)]  id: book_pick_one
    여러 명이 한 권씩 추천 + 추천사
    서브 제목 · 제목 · 영역 설명(각각 끌 수 있음) + 추천 카드(기본 4, 최대 12)
