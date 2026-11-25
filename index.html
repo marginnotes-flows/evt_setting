@@ -349,17 +349,17 @@ function registerFinder(k, f){ FINDERS[k] = f; }
    ═══════════════════════════════════════════════════════════════ */
 (function(){
 const thHas = s => lines(s.thTitle).length > 0 || lines(s.thSub).length > 0 || paras(s.thBody).length > 0 ||
-  (s.use_thTag && lines(s.thTag).length > 0) || (s.use_thDate && lines(s.thDate).length > 0);
+  (lines(s.thTag).length > 0) || (lines(s.thDate).length > 0);
 function thBlock(s){
-  const tag = s.use_thTag && lines(s.thTag).length
+  const tag = lines(s.thTag).length
     ? `<p class="th-tg th-tg-${s.thTagStyle}">${lines(s.thTag).map(esc).join(' ')}</p>` : '';
-  const sub = s.use_thSub && lines(s.thSub).length
+  const sub = lines(s.thSub).length
     ? `<p class="th-sub">${lines(s.thSub).map(esc).join('<br>')}</p>` : '';
   const tt = lines(s.thTitle).length
     ? `<h2 class="th-tt th-s-${s.thSize}">${lines(s.thTitle).map(md).join('<br>')}</h2>` : '';
   const ln = s.use_thLine ? '<div class="th-ln"></div>' : '';
-  const bd = s.use_thBody && paras(s.thBody).length ? `<div class="th-bd">${pHTML(s.thBody)}</div>` : '';
-  const dt = s.use_thDate && lines(s.thDate).length
+  const bd = paras(s.thBody).length ? `<div class="th-bd">${pHTML(s.thBody)}</div>` : '';
+  const dt = lines(s.thDate).length
     ? `<p class="th-dt">${lines(s.thDate).map(esc).join('<br>')}</p>` : '';
   const bg = s.thBg1 === s.thBg2 ? s.thBg1
     : `linear-gradient(${s.thDir === 'r' ? '135deg' : s.thDir === 'u' ? '0deg' : '180deg'},${s.thBg1} 0%,${s.thBg2} 100%)`;
@@ -374,13 +374,12 @@ registerModule({
   defaults: {
     use_th: true, thBg1: '#f3efe7', thBg2: '#ffffff', thDir: 'd', thC: 'k',
     thAlign: 'c', thSize: 'm', thPad: 'm',
-    use_thTag: true, thTag: '교보문고 단독', thTagStyle: 'f',
-    use_thSub: true, thSub: '올겨울, 다시 꺼내 읽고 싶은 책',
+    thTag: '교보문고 단독', thTagStyle: 'f',
+    thSub: '올겨울, 다시 꺼내 읽고 싶은 책',
     thTitle: '**깊이 읽는** 계절',
     use_thLine: true,
-    use_thBody: true,
     thBody: '한 해의 끝에서 천천히 읽기 좋은 책들을 모았습니다.\n마음이 오래 머무는 문장을 만나 보세요.',
-    use_thDate: true, thDate: '2026. 12. 1.(화) ~ 12. 31.(수)'
+    thDate: '2026. 12. 1.(화) ~ 12. 31.(수)'
   },
   schema: {
     id: 'th', t: '텍스트 헤더', d: '이미지 없이 글자만 쓰는 헤더예요. 스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_th',
@@ -395,19 +394,15 @@ registerModule({
         {t:'sel', k:'thSize', l:'제목 크기', o:[['s','작게'],['m','보통'],['l','크게']], h:'작게는 다른 영역의 제목과 같은 크기예요.'}
       ]},
       {t:'sel', k:'thPad', l:'영역 높이', o:[['s','낮게'],['m','보통'],['l','높게']], h:'위아래 여백이 함께 조절돼요.'},
-      {t:'sw', k:'use_thTag', l:'꼬리표 사용', h:'제목 위에 들어가는 작은 라벨이에요. 예: 교보문고 단독, Re-cover'},
       {t:'row', f:[
-        {t:'text', k:'thTag', l:'꼬리표 문구', ph:'교보문고 단독'},
+        {t:'text', k:'thTag', l:'꼬리표 문구', ph:'교보문고 단독', h:'제목 위 작은 라벨이에요(예: 교보문고 단독). 비워 두면 표시되지 않아요.'},
         {t:'sel', k:'thTagStyle', l:'꼬리표 모양', o:[['f','채움'],['o','테두리']], h:'공통 설정의 강조 색상을 따라가요.'}
       ]},
-      {t:'sw', k:'use_thSub', l:'서브 제목 사용'},
-      {t:'area', k:'thSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
+      {t:'area', k:'thSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
       {t:'area', k:'thTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · **문구**로 감싸면 강조 색으로 표시돼요.'},
       {t:'sw', k:'use_thLine', l:'제목 아래 구분선 사용'},
-      {t:'sw', k:'use_thBody', l:'상세 텍스트 사용'},
-      {t:'area', k:'thBody', l:'상세 텍스트', r:4, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게'},
-      {t:'sw', k:'use_thDate', l:'기간 안내 사용'},
-      {t:'text', k:'thDate', l:'기간 안내 문구', ph:'2026. 12. 1.(화) ~ 12. 31.(수)', h:'맨 아래에 작은 글씨로 들어가요.'}
+      {t:'area', k:'thBody', l:'상세 텍스트', r:4, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게 · 비워 두면 표시되지 않아요.'},
+      {t:'text', k:'thDate', l:'기간 안내 문구', ph:'2026. 12. 1.(화) ~ 12. 31.(수)', h:'맨 아래에 작은 글씨로 들어가요. 비워 두면 표시되지 않아요.'}
     ]
   },
   has: s => thHas(s),
@@ -489,7 +484,7 @@ function bhBlock(s){
   if(/^https?:\/\//.test(lk)) img = `<a href="${escA(lk)}" target="_blank" rel="noopener noreferrer">${img}</a>`;
   const head = `${lines(s.bhSub).length ? `<p class="bh-sub">${lines(s.bhSub).map(esc).join('<br>')}</p>` : ''}
     ${lines(s.bhTitle).length ? `<h2 class="bh-tt">${lines(s.bhTitle).map(md).join('<br>')}</h2>` : ''}`;
-  const body = s.use_bhBody && paras(s.bhBody).length ? `<div class="bh-bd">${pHTML(s.bhBody)}</div>` : '';
+  const body = paras(s.bhBody).length ? `<div class="bh-bd">${pHTML(s.bhBody)}</div>` : '';
   const im = `<div class="bh-im bh-w-${s.bhSize}">${img}</div>`;
   const bg = s.bhBg1 === s.bhBg2 ? s.bhBg1 : `linear-gradient(${s.bhDir === 'r' ? '135deg' : s.bhDir === 'u' ? '0deg' : '180deg'},${s.bhBg1} 0%,${s.bhBg2} 100%)`;
   return `<div class="sec bh" style="background:${bg}"><div class="bh-in">
@@ -506,7 +501,6 @@ registerModule({
     use_bh: true, bhBg1: '#eef3f8', bhBg2: '#ffffff', bhDir: 'd', bhC: 'k', bhSize: 'm',
     bhSub: '올해 가장 많이 읽힌 한 권',
     bhTitle: '**물고기는**\n존재하지 않는다',
-    use_bhBody: true,
     bhBody: '무던해 보이지만 누구보다 예민한 당신을 위한 심리학.\n예민함의 특성을 이해하고, 긴장과 불안에서 벗어나 삶의 균형을 찾는 방법을 알려 드립니다.',
     bhCoverUrl: '', bhLink: ''
   },
@@ -521,8 +515,7 @@ registerModule({
       {t:'tc', k:'bhC', l:'글자색'},
       {t:'area', k:'bhSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
       {t:'area', k:'bhTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · **문구**로 감싸면 강조 색으로 표시돼요.'},
-      {t:'sw', k:'use_bhBody', l:'상세 텍스트 사용'},
-      {t:'area', k:'bhBody', l:'상세 텍스트', r:5, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게'},
+      {t:'area', k:'bhBody', l:'상세 텍스트', r:5, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게 · 비워 두면 표시되지 않아요.'},
       {t:'img', k:'bhCover', l:'도서 표지 이미지', sz:'세로형(2:3) 권장 · PC 300px 폭으로 표시 · 권장 600 × 900px'},
       {t:'text', k:'bhLink', l:'표지 클릭 시 이동할 링크 (선택)', ph:'https://product.kyobobook.co.kr/detail/...'}
     ]
@@ -593,7 +586,7 @@ function ahBlock(s){
   const im = `<div class="ah-imw ah-w-${s.ahSize}"><div class="ah-im ah-f-${s.ahShape}">${img}</div>${cap}</div>`;
   const head = `${lines(s.ahSub).length ? `<p class="ah-sub">${lines(s.ahSub).map(esc).join('<br>')}</p>` : ''}
     ${lines(s.ahTitle).length ? `<h2 class="ah-tt">${lines(s.ahTitle).map(md).join('<br>')}</h2>` : ''}`;
-  const body = s.use_ahBody && paras(s.ahBody).length ? `<div class="ah-bd">${pHTML(s.ahBody)}</div>` : '';
+  const body = paras(s.ahBody).length ? `<div class="ah-bd">${pHTML(s.ahBody)}</div>` : '';
   const bg = s.ahBg1 === s.ahBg2 ? s.ahBg1 : `linear-gradient(${s.ahDir === 'r' ? '135deg' : s.ahDir === 'u' ? '0deg' : '180deg'},${s.ahBg1} 0%,${s.ahBg2} 100%)`;
   return `<div class="sec ah" style="background:${bg}"><div class="ah-in">
   ${head}
@@ -610,7 +603,6 @@ registerModule({
     ahShape: 'arch', ahBd: '', ahBdW: '0',
     ahSub: '이달의 작가',
     ahTitle: '**작가 이름**\n작가의 책장',
-    use_ahBody: true,
     ahBody: '작가를 소개하는 글을 입력해 주세요.\n대표작과 수상 이력, 독자에게 전하고 싶은 메시지를 담으면 좋습니다.',
     ahPhotoUrl: '', ahWho: '', ahCap: ''
   },
@@ -625,8 +617,7 @@ registerModule({
       {t:'tc', k:'ahC', l:'글자색'},
       {t:'area', k:'ahSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
       {t:'area', k:'ahTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · **문구**로 감싸면 강조 색으로 표시돼요.'},
-      {t:'sw', k:'use_ahBody', l:'상세 텍스트 사용'},
-      {t:'area', k:'ahBody', l:'상세 텍스트', r:5, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게'},
+      {t:'area', k:'ahBody', l:'상세 텍스트', r:5, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 굵게 · 비워 두면 표시되지 않아요.'},
       {t:'img', k:'ahPhoto', l:'저자 이미지', sz:'세로형(3:4) 권장 · PC 320px 폭으로 표시 · 권장 900 × 1200px (원형은 1:1 권장)'},
       {t:'sel', k:'ahShape', l:'액자 모양', o:[['sq','사각형'],['rd','둥근 사각형'],['ci','원형'],['ov','오벌 (세로 타원)'],['arch','아치형']],
        h:'원형은 정사각형 이미지를, 나머지는 세로형 이미지를 권장해요.'},
@@ -1323,7 +1314,7 @@ const SAMPLE = [
 registerModule({
   id: 'book_list',
   name: '도서 목록',
-  group: '추천 · 후기',
+  group: '도서 소개',
   defaults: {
     use_bl: true, blBg1: '#ffffff', blBg2: '#f6f3ec', blDir: 'd', blC: 'k',
     blCols: '3', blView: 'list', blAuto: true, blSec: '4',
@@ -1715,7 +1706,7 @@ document.addEventListener('click', e => {
 registerModule({
   id: 'book_list_long',
   name: '도서 목록(긴 소개)',
-  group: '추천 · 후기',
+  group: '도서 소개',
   defaults: {
     use_lb: true, lbView: 'h', lbSize: 'm', lbBg1: '#ffffff', lbBg2: '#f6f3ec', lbDir: 'd', lbC: 'k',
     lbSub: '한 권씩 자세히',
@@ -2024,9 +2015,9 @@ function p1Block(s, m){
   const cards = L.map(x => p1Card(s, x)).join('');
   const bg = s.p1Bg1 === s.p1Bg2 ? s.p1Bg1
     : `linear-gradient(${s.p1Dir === 'r' ? '135deg' : s.p1Dir === 'u' ? '0deg' : '180deg'},${s.p1Bg1} 0%,${s.p1Bg2} 100%)`;
-  const head = `${s.use_p1Sub && lines(s.p1Sub).length ? `<p class="p1-sub">${lines(s.p1Sub).map(esc).join('<br>')}</p>` : ''}
-    ${s.use_p1Title && lines(s.p1Title).length ? `<h3 class="tt p1-tt">${lines(s.p1Title).map(esc).join('<br>')}</h3>` : ''}
-    ${s.use_p1Desc && paras(s.p1Desc).length ? `<div class="p1-ds">${pHTML(s.p1Desc)}</div>` : ''}`;
+  const head = `${lines(s.p1Sub).length ? `<p class="p1-sub">${lines(s.p1Sub).map(esc).join('<br>')}</p>` : ''}
+    ${lines(s.p1Title).length ? `<h3 class="tt p1-tt">${lines(s.p1Title).map(esc).join('<br>')}</h3>` : ''}
+    ${paras(s.p1Desc).length ? `<div class="p1-ds">${pHTML(s.p1Desc)}</div>` : ''}`;
   const top = head.trim() ? `<div class="p1-top">${head}</div>` : '';
   /* ① 버튼으로 전환 — 숨긴 라디오 + 라벨 버튼, 카드는 겹쳐 두어 영역 높이가 흔들리지 않는다 */
   if(p1Tab(s)){
@@ -2060,12 +2051,9 @@ const SCHEMA = {
       {t:'sel', k:'p1Dir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
       {t:'tc', k:'p1C', l:'배경 위 글자색'}
     ]},
-    {t:'sw', k:'use_p1Sub', l:'서브 제목 사용'},
-    {t:'area', k:'p1Sub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
-    {t:'sw', k:'use_p1Title', l:'제목 사용'},
-    {t:'area', k:'p1Title', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요.'},
-    {t:'sw', k:'use_p1Desc', l:'영역 설명 사용'},
-    {t:'area', k:'p1Desc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게'},
+    {t:'area', k:'p1Sub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
+    {t:'area', k:'p1Title', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요. 비워 두면 표시되지 않아요.'},
+    {t:'area', k:'p1Desc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게 · 비워 두면 표시되지 않아요.'},
     {t:'det', l:'카드 모양 · 단 수 · 추천인 사진 설정', f:[
       {t:'row', f:[
         {t:'sel', k:'p1Cols', l:'PC 단 수', o:[['2','2단'],['3','3단']], h:'카드 나열일 때만 적용돼요. 추천사가 길면 2단을 권장합니다.'},
@@ -2158,12 +2146,12 @@ document.addEventListener('click', e => {
 registerModule({
   id: 'book_pick_one',
   name: '추천 도서(1인 1권)',
-  group: '추천 · 후기',
+  group: '도서 소개',
   defaults: {
     use_p1: true, p1View: 'gr', p1Bg1: '#f6f3ec', p1Bg2: '#ffffff', p1Dir: 'd', p1C: 'k',
-    use_p1Sub: true, p1Sub: '한 사람이 한 권씩',
-    use_p1Title: true, p1Title: '이 계절, 제가 권하고 싶은 책',
-    use_p1Desc: true, p1Desc: '책을 가까이에서 마주하는 분들께 올해의 한 권을 여쭈었습니다.\n짧은 추천사와 함께 소개해 드립니다.',
+    p1Sub: '한 사람이 한 권씩',
+    p1Title: '이 계절, 제가 권하고 싶은 책',
+    p1Desc: '책을 가까이에서 마주하는 분들께 올해의 한 권을 여쭈었습니다.\n짧은 추천사와 함께 소개해 드립니다.',
     p1Cols: '2', p1MoCols: '1',
     use_p1Card: true, p1Card: '#ffffff', p1CardA: '100', p1CardC: 'k',
     use_p1Auth: true, use_p1Fold: true,
@@ -2445,15 +2433,15 @@ function pmBody(s, p){
     ? `<div class="pm-ht">${who ? `<p class="pm-wn">${esc(who)}</p>` : ''}${role ? `<p class="pm-wr">${esc(role)}</p>` : ''}</div>` : '';
   const ph = pmPhoto(s, p, 'pm-ph');
   const hd = (ph || ht) ? `<div class="pm-hd">${ph}${ht}</div>` : '';
-  const wd = s.use_pmWord && paras(p.word).length ? `<div class="pm-wd">${pHTML(p.word)}</div>` : '';
+  const wd = paras(p.word).length ? `<div class="pm-wd">${pHTML(p.word)}</div>` : '';
   const bk = pmBooks(p.books).map(b => pmBook(s, b)).join('');
   const gd = bk ? `<div class="pm-gd pm-c${s.pmCols} pm-m${s.pmMoCols}">${bk}</div>` : '';
   return hd + wd + gd;
 }
 function pmHead(s){
-  const head = `${s.use_pmSub && lines(s.pmSub).length ? `<p class="pm-sub">${lines(s.pmSub).map(esc).join('<br>')}</p>` : ''}
-    ${s.use_pmTitle && lines(s.pmTitle).length ? `<h3 class="tt pm-tt">${lines(s.pmTitle).map(esc).join('<br>')}</h3>` : ''}
-    ${s.use_pmDesc && paras(s.pmDesc).length ? `<div class="pm-ds">${pHTML(s.pmDesc)}</div>` : ''}`;
+  const head = `${lines(s.pmSub).length ? `<p class="pm-sub">${lines(s.pmSub).map(esc).join('<br>')}</p>` : ''}
+    ${lines(s.pmTitle).length ? `<h3 class="tt pm-tt">${lines(s.pmTitle).map(esc).join('<br>')}</h3>` : ''}
+    ${paras(s.pmDesc).length ? `<div class="pm-ds">${pHTML(s.pmDesc)}</div>` : ''}`;
   return head.trim() ? `<div class="pm-top"><div class="pm-in">${head}</div></div>` : '';
 }
 function pmBlock(s, m){
@@ -2485,12 +2473,9 @@ const SCHEMA = {
     {t:'row', f:[{t:'color', k:'pmBg1', l:'배경색 ①'}, {t:'color', k:'pmBg2', l:'배경색 ②'}]},
     {t:'sw', k:'pmAlt', l:'추천인마다 배경색 번갈아 쓰기', h:'전체 나열일 때만 적용돼요. 버튼으로 전환일 때는 배경색 ②가 고정 영역(패널)의 배경이 됩니다.'},
     {t:'row', f:[{t:'tc', k:'pmC1', l:'배경색 ① 위 글자색'}, {t:'tc', k:'pmC2', l:'배경색 ② 위 글자색'}]},
-    {t:'sw', k:'use_pmSub', l:'서브 제목 사용'},
-    {t:'area', k:'pmSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
-    {t:'sw', k:'use_pmTitle', l:'제목 사용'},
-    {t:'area', k:'pmTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요.'},
-    {t:'sw', k:'use_pmDesc', l:'영역 설명 사용'},
-    {t:'area', k:'pmDesc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게'},
+    {t:'area', k:'pmSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
+    {t:'area', k:'pmTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요. 비워 두면 표시되지 않아요.'},
+    {t:'area', k:'pmDesc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게 · 비워 두면 표시되지 않아요.'},
     {t:'det', l:'도서 카드 · 단 수 · 추천인 사진 설정', f:[
       {t:'row', f:[
         {t:'sel', k:'pmCols', l:'PC 단 수', o:[['3','3단'],['4','4단'],['5','5단']]},
@@ -2500,7 +2485,6 @@ const SCHEMA = {
         {t:'sw', k:'use_pmAuth', l:'저자 · 출판사 표시'},
         {t:'sw', k:'use_pmCmt', l:'도서별 한 줄 코멘트 표시'}
       ]},
-      {t:'sw', k:'use_pmWord', l:'추천인 한마디 사용'},
       {t:'sw', k:'pmPhoto', l:'추천인 사진 사용', h:'끄면 이름과 소개만 표시돼요. 버튼에도 함께 적용됩니다.'},
       {t:'row', f:[
         {t:'sel', k:'pmShape', l:'사진 액자 모양', o:[['ci','원형'],['rd','둥근 사각형'],['sq','사각형']], h:'정사각형(1:1) 이미지를 권장해요.'},
@@ -2535,7 +2519,7 @@ function renderPm(){
     <div class="f"><label>추천인 사진 주소 (선택)</label><input type="url" data-pm="${i}:photo" value="${escA(p.photo)}" placeholder="https://contents.kyobobook.co.kr/pmtn/...">
       <div class="hint">정사각형(1:1) 이미지를 권장해요.</div></div>
     <div class="f"><label>추천사 (한마디)</label><textarea data-pm="${i}:word" rows="3" spellcheck="false">${esc(p.word)}</textarea>
-      <div class="hint">빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게</div></div>
+      <div class="hint">빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게 · 비워 두면 표시되지 않아요.</div></div>
     <div class="f"><label>추천 도서 <span class="badge">최대 ${PM_BOOK_MAX}권</span></label>
       <textarea data-pm="${i}:books" rows="5" spellcheck="false" placeholder="${escA(PM_PH)}">${esc(p.books)}</textarea>
       <div class="hint">한 줄에 한 권 · 칸 구분은 세로줄(|)<br>${escA(PM_PH)}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.</div></div>
@@ -2570,15 +2554,14 @@ const SAMPLE = '9791194273448 | 첫 번째 도서명 | 지은이 지음 · 출�
 registerModule({
   id: 'book_pick_multi',
   name: '추천 도서(1인 여러 권)',
-  group: '추천 · 후기',
+  group: '도서 소개',
   defaults: {
     use_pm: true, pmView: 'tb', pmBg1: '#ffffff', pmBg2: '#f4f1ea', pmAlt: true, pmC1: 'k', pmC2: 'k',
-    use_pmSub: true, pmSub: '한 사람이 고른 여러 권',
-    use_pmTitle: true, pmTitle: '읽는 사람이 권하는 책장',
-    use_pmDesc: true, pmDesc: '책을 가까이에서 마주하는 분들께 지금 권하고 싶은 책들을 여쭈었습니다.\n추천인을 눌러 책장을 바꿔 가며 살펴보세요.',
+    pmSub: '한 사람이 고른 여러 권',
+    pmTitle: '읽는 사람이 권하는 책장',
+    pmDesc: '책을 가까이에서 마주하는 분들께 지금 권하고 싶은 책들을 여쭈었습니다.\n추천인을 눌러 책장을 바꿔 가며 살펴보세요.',
     pmCols: '4', pmMoCols: '2',
-    use_pmAuth: true, use_pmCmt: true, use_pmWord: true,
-    pmPhoto: true, pmShape: 'ci', pmBd: '', pmBdW: '0',
+    use_pmAuth: true, use_pmCmt: true, pmPhoto: true, pmShape: 'ci', pmBd: '', pmBdW: '0',
     pmPpl: [
       {who:'정다원', role:'교보문고 도서 MD', photo:'',
        word:'한 해 동안 가장 여러 번 다시 펼친 책들을 모았습니다. 서로 결은 다르지만, 읽고 난 뒤 같은 자리를 오래 바라보게 한다는 점이 닮아 있습니다.',
@@ -2994,8 +2977,8 @@ function ivBlock(s){
   const DIR = {d:'180deg', u:'0deg', r:'135deg', l:'225deg'};
   const bg = s.ivBg1 === s.ivBg2 ? s.ivBg1 : `linear-gradient(${DIR[s.ivBgDir] || DIR.d},${s.ivBg1} 0%,${s.ivBg2} 100%)`;
   return `<div class="sec iv" style="background:${bg}"><div class="iv-in">
-  ${s.use_ivSub && lines(s.ivSub).length ? `<p class="iv-sub">${lines(s.ivSub).map(esc).join('<br>')}</p>` : ''}
-  ${s.use_ivTitle && lines(s.ivTitle).length ? `<h3 class="iv-tt">${lines(s.ivTitle).map(esc).join('<br>')}</h3>` : ''}
+  ${lines(s.ivSub).length ? `<p class="iv-sub">${lines(s.ivSub).map(esc).join('<br>')}</p>` : ''}
+  ${lines(s.ivTitle).length ? `<h3 class="iv-tt">${lines(s.ivTitle).map(esc).join('<br>')}</h3>` : ''}
   ${rows ? `<div class="iv-ls">${rows}</div>` : ''}
 </div></div>`;
 }
@@ -3008,10 +2991,8 @@ const SCHEMA = {
     {t:'row', f:[{t:'color', k:'ivQBg', l:'질문 말풍선 색'}, {t:'color', k:'ivPt', l:'제목 · 강조 문구 색'}]},
     {t:'tc', k:'ivQC', l:'질문 글자색'},
     {t:'tc', k:'ivAC', l:'답변 글자색'},
-    {t:'sw', k:'use_ivSub', l:'서브 제목 사용'},
-    {t:'area', k:'ivSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
-    {t:'sw', k:'use_ivTitle', l:'제목 사용'},
-    {t:'area', k:'ivTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔'},
+    {t:'area', k:'ivSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
+    {t:'area', k:'ivTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
     {t:'text', k:'ivQEmoji', l:'독자 프로필 이모지', ph:'🙋', h:'질문 왼쪽 원 안에 들어가요. 이모지를 직접 입력하거나 붙여넣으세요. (예: 🙋 💬 📖 🎤) 비우면 마이크 아이콘이 표시돼요.'},
     {t:'img', k:'ivAvatar', l:'작가 이미지 (원형)', sz:'정사각형(1:1) 권장 · 답변 옆에 작게 들어가요 · 권장 300 × 300px'},
     {t:'text', k:'ivWho', l:'작가 이름 (이미지 설명용 · 화면에는 보이지 않아요)', ph:'예: 홍길동 작가'},
@@ -3062,8 +3043,8 @@ registerModule({
   defaults: {
     use_iv: true, ivBg1: '#ffe7a9', ivBg2: '#fff3d2', ivBgDir: 'd', ivQBg: '#f58220', ivPt: '#f58220',
     ivQC: 'w', ivAC: 'k',
-    use_ivSub: true, ivSub: '작가에게 직접 들어 보는 이야기',
-    use_ivTitle: true, ivTitle: '독자가 묻고 작가가 답하다',
+    ivSub: '작가에게 직접 들어 보는 이야기',
+    ivTitle: '독자가 묻고 작가가 답하다',
     ivQEmoji: '🙋',
     ivAvatarUrl: '', ivWho: '',
     ivSets: [
@@ -3200,10 +3181,10 @@ function xvBlock(s){
     const b = alt && i % 2 === 1;
     return `<div class="xv-set${b ? ' xv-b' : ''}"${b ? ` style="background:${s.xvBg2}"` : ''}><div class="xv-in">${body}</div></div>`;
   }).join('');
-  const head = (s.use_xvSub && lines(s.xvSub).length) || (s.use_xvTitle && lines(s.xvTitle).length)
+  const head = (lines(s.xvSub).length) || (lines(s.xvTitle).length)
     ? `<div class="xv-top"><div class="xv-in">
-      ${s.use_xvSub && lines(s.xvSub).length ? `<p class="xv-sub">${lines(s.xvSub).map(esc).join('<br>')}</p>` : ''}
-      ${s.use_xvTitle && lines(s.xvTitle).length ? `<h3 class="xv-tt">${lines(s.xvTitle).map(esc).join('<br>')}</h3>` : ''}
+      ${lines(s.xvSub).length ? `<p class="xv-sub">${lines(s.xvSub).map(esc).join('<br>')}</p>` : ''}
+      ${lines(s.xvTitle).length ? `<h3 class="xv-tt">${lines(s.xvTitle).map(esc).join('<br>')}</h3>` : ''}
     </div></div>` : '';
   return `<div class="sec xv" style="background:${s.xvBg1}">${head}${rows}</div>`;
 }
@@ -3213,10 +3194,8 @@ const SCHEMA = {
     {t:'row', f:[{t:'color', k:'xvBg1', l:'배경색 ①'}, {t:'color', k:'xvBg2', l:'배경색 ②'}]},
     {t:'sw', k:'xvAlt', l:'세트마다 배경색 번갈아 쓰기', h:'끄면 전체가 배경색 ① 한 가지로 표시돼요.'},
     {t:'row', f:[{t:'tc', k:'xvC1', l:'배경색 ① 위 글자색'}, {t:'tc', k:'xvC2', l:'배경색 ② 위 글자색'}]},
-    {t:'sw', k:'use_xvSub', l:'서브 제목 사용'},
-    {t:'area', k:'xvSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
-    {t:'sw', k:'use_xvTitle', l:'제목 사용'},
-    {t:'area', k:'xvTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔'},
+    {t:'area', k:'xvSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
+    {t:'area', k:'xvTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
     {t:'det', l:'질문 · 답변 꾸밈 (라벨 · 이모지 · 색상)', f:[
       {t:'row', f:[{t:'text', k:'xvQLabel', l:'질문 라벨', ph:'독자의 질문'}, {t:'text', k:'xvQEmoji', l:'질문 이모지', ph:'❓'}]},
       {t:'row', f:[{t:'color', k:'xvQIc', l:'질문 아이콘 원 색'}, {t:'color', k:'xvQBt', l:'질문 버튼 색'}]},
@@ -3281,8 +3260,8 @@ registerModule({
   group: '인터뷰',
   defaults: {
     use_xv: true, xvBg1: '#efad32', xvBg2: '#111111', xvAlt: true, xvC1: 'k', xvC2: 'w',
-    use_xvSub: true, xvSub: '독자가 묻고 작가가 답하다',
-    use_xvTitle: true, xvTitle: '작가에게 직접 들어 보는 이야기',
+    xvSub: '독자가 묻고 작가가 답하다',
+    xvTitle: '작가에게 직접 들어 보는 이야기',
     xvQLabel: '독자의 질문', xvQEmoji: '❓', xvQIc: '#ffd34d', xvQBt: '#f0861b',
     xvALabel: '작가의 답변', xvAEmoji: '📣', xvAIc: '#ffd34d', xvABt: '#b9232c',
     xvCard: '#fbf0dc', xvCardA: '100', xvCardC: 'k', xvBtC: 'w',
