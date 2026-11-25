@@ -4133,7 +4133,7 @@ function lkBlock(s){
       : `<span class="lk-b lk-x">${inner}</span>`;
   }).join('');
   const grid = items
-    ? `<div class="lk-gd lk-c${s.lkCols} lk-m${s.lkMo} lk-s${s.lkStyle} lk-z${s.lkSize}">${items}</div>` : '';
+    ? `<div class="lk-gd lk-c${s.lkCols} lk-m${s.lkMo} lk-s${s.lkStyle} lk-z${s.lkSize} lk-a${s.lkAlign}">${items}</div>` : '';
   return `<div class="sec lk" style="background:${bg}"><div class="lk-in">
   ${head.trim() ? `<div class="lk-top">${head}</div>` : ''}
   ${grid}
@@ -4148,7 +4148,7 @@ registerModule({
     lkSub: '', lkTitle: '함께 보면 좋은 곳', lkDesc: '',
     lkBtns: '이벤트 전체 보기 | https://product.kyobobook.co.kr/ | 이번 달 기획전을 한눈에\n' +
             '리커버 도서 보러 가기 | https://product.kyobobook.co.kr/ | 교보문고에서만 만나는 표지',
-    lkStyle: 'f', lkCols: '2', lkMo: '1', lkSize: 'm', lkArrow: true,
+    lkStyle: 'f', lkCols: '2', lkMo: '1', lkSize: 'm', lkAlign: 'c', lkArrow: true,
     use_lkCol: false, lkCol: '#2f6fed'
   },
   schema: {
@@ -4173,6 +4173,7 @@ registerModule({
           {t:'sel', k:'lkCols', l:'PC 한 줄에', o:[['1','1개'],['2','2개'],['3','3개']]},
           {t:'sel', k:'lkMo', l:'모바일 한 줄에', o:[['1','1개'],['2','2개']], h:'문구가 길면 1개를 권해 드려요.'}
         ]},
+        {t:'sel', k:'lkAlign', l:'버튼 글자 정렬', o:[['c','가운데'],['l','왼쪽'],['s','양끝 — 글자 왼쪽 · 화살표 오른쪽']], h:'카드 모양에는 양끝이 잘 어울려요.'},
         {t:'sw', k:'lkArrow', l:'화살표(→) 표시'},
         {t:'sw', k:'use_lkCol', l:'버튼 색 직접 지정', h:'끄면 공통 설정의 강조 색상을 따라가요.'},
         {t:'color', k:'lkCol', l:'버튼 색'}
@@ -4194,7 +4195,7 @@ registerModule({
 .rcv .lk-ds{opacity:.88}
 .rcv .lk-ds b{color:var(--pt)}
 .rcv .lk-ds p+p{margin-top:.7em}
-.rcv .lk-gd{display:grid;justify-content:center}
+.rcv .lk-gd{display:flex;flex-wrap:wrap;justify-content:center}
 .rcv .lk-b{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-family:var(--f-head);font-weight:700;transition:background .18s,border-color .18s,transform .18s}
 .rcv .lk-w{display:block;min-width:0}
 .rcv .lk-l{display:block}
@@ -4202,7 +4203,10 @@ registerModule({
 .rcv .lk-ar{flex:none;font-weight:400;opacity:.9}
 .rcv .lk-sf .lk-b{background:var(--lk-bt);color:var(--lk-on)}
 .rcv .lk-so .lk-b{background:transparent;color:var(--lk-bt);border:2px solid var(--lk-bt)}
-.rcv .lk-sc .lk-b{background:#fff;color:#1c1c1e;justify-content:space-between;text-align:left}
+.rcv .lk-sc .lk-b{background:#fff;color:#1c1c1e}
+.rcv .lk-ac .lk-b{justify-content:center;text-align:center}
+.rcv .lk-al .lk-b{justify-content:flex-start;text-align:left}
+.rcv .lk-as .lk-b{justify-content:space-between;text-align:left}
 .rcv .lk-sc .lk-ar{color:var(--lk-bt);font-weight:700}
 .rcv .lk-x{opacity:.45}
 @media (hover:hover){
@@ -4218,10 +4222,13 @@ registerModule({
 .rcv .lk-sub{font-size:20px;line-height:1.5}
 .rcv .lk-tt{font-size:40px;line-height:1.35;margin-top:14px}
 .rcv .lk-ds{font-size:19px;line-height:1.8;margin-top:22px}
-.rcv .lk-gd{gap:16px;margin-top:44px}
-.rcv .lk-c1{grid-template-columns:minmax(0,520px)}
-.rcv .lk-c2{grid-template-columns:repeat(2,minmax(0,380px))}
-.rcv .lk-c3{grid-template-columns:repeat(3,minmax(0,330px))}
+.rcv .lk-gd{gap:16px;margin:44px auto 0}
+.rcv .lk-c1{max-width:520px}
+.rcv .lk-c2{max-width:776px}
+.rcv .lk-c3{max-width:1022px}
+.rcv .lk-c1 .lk-b{width:100%}
+.rcv .lk-c2 .lk-b{width:calc(50% - 8px)}
+.rcv .lk-c3 .lk-b{width:calc((100% - 32px) / 3)}
 .rcv .lk-b{border-radius:16px;padding:21px 28px;font-size:20px;line-height:1.4}
 .rcv .lk-zl .lk-b{border-radius:18px;padding:27px 34px;font-size:23px}
 .rcv .lk-d{font-size:16px;line-height:1.5}
@@ -4236,8 +4243,9 @@ registerModule({
 .rcv .lk-sub{font-size:26px;line-height:1.5}
 .rcv .lk-tt{font-size:44px;line-height:1.35;margin-top:18px}
 .rcv .lk-ds{font-size:25px;line-height:1.8;margin-top:26px}
-.rcv .lk-gd{gap:18px;margin-top:48px;grid-template-columns:minmax(0,1fr)}
-.rcv .lk-m2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rcv .lk-gd{gap:18px;margin:48px auto 0}
+.rcv .lk-b{width:100%}
+.rcv .lk-m2 .lk-b{width:calc(50% - 9px)}
 .rcv .lk-b{border-radius:20px;padding:30px 28px;font-size:29px;line-height:1.4}
 .rcv .lk-zl .lk-b{border-radius:22px;padding:36px 30px;font-size:33px}
 .rcv .lk-d{font-size:23px;line-height:1.5;margin-top:8px}
