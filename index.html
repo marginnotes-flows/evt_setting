@@ -1317,8 +1317,8 @@ function p1Block(s, m){
 const SCHEMA = {
   id: 'p1', t: '추천 도서(1인 1권)', d: '스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_p1',
   f: [
-    {t:'sel', k:'p1View', l:'표시 방식', o:[['gr','카드 나열'],['tb','버튼으로 전환 (추천인 버튼 + 고정 영역)']],
-      h:'버튼으로 전환: 추천인 버튼을 누르면 아래 고정 영역의 카드만 바뀌어요. 자바스크립트 없이 동작합니다.'},
+    {t:'sel', k:'p1View', l:'표시 방식', o:[['gr','전체 나열 — 카드를 한 번에 모두 보여 주기'],['tb','버튼으로 전환 — 추천인 버튼 + 고정 영역']],
+      h:'전체 나열: PC 2~3단, 모바일 1~2단으로 모든 추천 카드를 늘어놓아요.<br>버튼으로 전환: 추천인 버튼을 누르면 아래 고정 영역의 카드만 바뀌어요. 자바스크립트 없이 동작합니다.'},
     {t:'row', f:[{t:'color', k:'p1Bg1', l:'배경색 ①'}, {t:'color', k:'p1Bg2', l:'배경색 ②'}]},
     {t:'row', f:[
       {t:'sel', k:'p1Dir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
@@ -1743,10 +1743,10 @@ function pmBlock(s, m){
 const SCHEMA = {
   id: 'pm', t: '추천 도서(1인 여러 권)', d: '스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_pm',
   f: [
-    {t:'sel', k:'pmView', l:'표시 방식', o:[['tb','버튼으로 전환 (추천인 버튼 + 고정 영역)'],['st','세로로 나열']],
-      h:'버튼으로 전환: 추천인 버튼을 누르면 아래 고정 영역의 내용만 바뀌어요. 자바스크립트 없이 동작합니다.'},
+    {t:'sel', k:'pmView', l:'표시 방식', o:[['tb','버튼으로 전환 — 추천인 버튼 + 고정 영역'],['st','전체 나열 — 추천인을 세로로 모두 보여 주기']],
+      h:'버튼으로 전환: 추천인 버튼을 누르면 아래 고정 영역의 내용만 바뀌어요. 자바스크립트 없이 동작합니다.<br>전체 나열: 추천인 블록을 위에서 아래로 모두 쌓아요.'},
     {t:'row', f:[{t:'color', k:'pmBg1', l:'배경색 ①'}, {t:'color', k:'pmBg2', l:'배경색 ②'}]},
-    {t:'sw', k:'pmAlt', l:'추천인마다 배경색 번갈아 쓰기', h:'세로로 나열일 때만 적용돼요. 버튼으로 전환일 때는 배경색 ②가 고정 영역(패널)의 배경이 됩니다.'},
+    {t:'sw', k:'pmAlt', l:'추천인마다 배경색 번갈아 쓰기', h:'전체 나열일 때만 적용돼요. 버튼으로 전환일 때는 배경색 ②가 고정 영역(패널)의 배경이 됩니다.'},
     {t:'row', f:[{t:'tc', k:'pmC1', l:'배경색 ① 위 글자색'}, {t:'tc', k:'pmC2', l:'배경색 ② 위 글자색'}]},
     {t:'sw', k:'use_pmSub', l:'서브 제목 사용'},
     {t:'area', k:'pmSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔'},
@@ -3379,15 +3379,25 @@ registerModule({
 })();
 
 
-const DEF = Object.assign({ pt:'#2b9bde', ns:'', pub:'pub1', bn:'bnX', cdn:'2026/book/폴더명', evTitle:'', fBody:'pretendard', fHead:'pretendard', fHeadExtra:'', picked:null, use_bgAll:false, bgA1:'#ffffff', bgA2:'#f4f1ea', bgADir:'d' }, ...MODS.map(m => m.defaults));
+const DEF = Object.assign({ pt:'#2b9bde', ns:'', pub:'pub1', bn:'bnX', cdn:'2026/book/폴더명', evTitle:'', fBody:'pretendard', fHead:'pretendard', fHeadExtra:'', picked:null, use_bgAll:false, bgAKind:'g', bgA1:'#ffffff', bgA2:'#f4f1ea', bgADir:'d', bgAPat:'#8a8a8e', bgAOpa:'70', bgAGap:'m', bgADash:false }, ...MODS.map(m => m.defaults));
 let S = JSON.parse(JSON.stringify(DEF));
 const FM = [
-  {t:'sw', k:'use_bgAll', l:'전체 배경', h:'켜면 각 영역에서 설정한 배경색은 무시되고, 아래 색이 페이지 전체에 한 번에 적용돼요. 그라데이션도 영역마다 끊기지 않고 처음부터 끝까지 이어집니다.'},
+  {t:'sw', k:'use_bgAll', l:'전체 배경', h:'켜면 각 영역에서 설정한 배경색은 무시되고, 아래 설정이 페이지 전체에 한 번에 적용돼요. 그라데이션과 무늬 모두 영역마다 끊기지 않고 처음부터 끝까지 이어집니다.'},
+  {t:'sel', k:'bgAKind', l:'전체 배경 종류', o:[['g','단색 · 그라데이션'],['dot','작은 도트'],['hl','가로 줄'],['vl','세로 줄'],['gd','모눈']],
+    h:'무늬를 고르면 배경색 ①이 바탕색이 되고, 배경색 ②와 그라데이션 방향은 쓰이지 않아요. 무늬는 모두 CSS 로만 그려서 이미지를 올리지 않아도 돼요.'},
   {t:'row', f:[
     {t:'color', k:'bgA1', l:'전체 배경색 ①'},
     {t:'color', k:'bgA2', l:'전체 배경색 ②'}
   ]},
-  {t:'sel', k:'bgADir', l:'전체 배경 그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
+  {t:'sel', k:'bgADir', l:'전체 배경 그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'단색 · 그라데이션일 때만 쓰여요. 두 색을 같게 하면 단색이에요.'},
+  {t:'row', f:[
+    {t:'color', k:'bgAPat', l:'무늬 색 (도트 · 줄)'},
+    {t:'text', k:'bgAOpa', l:'무늬 투명도 (%)', ph:'70', h:'기본 70%예요. 낮출수록 옅어집니다.'}
+  ]},
+  {t:'row', f:[
+    {t:'sel', k:'bgAGap', l:'무늬 간격', o:[['s','촘촘하게'],['m','보통'],['l','넓게']]},
+    {t:'sw', k:'bgADash', l:'줄을 점선으로', h:'가로 줄 · 세로 줄에만 적용돼요.'}
+  ]},
   {t:'row', f:[
     {t:'sel', k:'fBody', l:'본문 폰트', o:FONT_OPTS},
     {t:'sel', k:'fHead', l:'제목 폰트', o:FONT_OPTS}
@@ -3413,6 +3423,14 @@ const kb = n => n > 1048576 ? (n/1048576).toFixed(1)+'MB' : Math.max(1,Math.roun
 const mix = (a,b,t) => { const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const x=p(a), y=p(b);
   return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join(''); };
 const imgSrc = k => (S[k+'Url']||'').trim();
+/* #rrggbb + 투명도(0~1) → rgba() */
+function rgba(hex, a){
+  const h = String(hex || '').replace('#', '');
+  const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  const n = parseInt(v.slice(0, 6), 16);
+  if(!isFinite(n)) return `rgba(0,0,0,${a})`;
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+}
 
 /* 강조 색 위에 올릴 글자색을 밝기로 고른다 (버튼·꼬리표 등) */
 function onColor(hex){
@@ -3542,6 +3560,37 @@ function fontLinks(s){
   [s.fBody, s.fHead].forEach(k => { const u = fontOf(k)[3]; if(u) need.add(u); });
   return [...need].map(u => `<link rel="stylesheet" href="${u}">`).join('\n');
 }
+/* 전체 배경 — 단색·그라데이션 또는 CSS 로만 그리는 무늬(도트·가로줄·세로줄·모눈).
+   모바일은 750 기준 px 를 vw 로 바꿔 화면 크기에 따라 함께 늘어나게 한다. */
+function bgAllCss(s, m){
+  const base = s.bgA1;
+  if(s.bgAKind !== 'dot' && s.bgAKind !== 'hl' && s.bgAKind !== 'vl' && s.bgAKind !== 'gd'){
+    const bg = s.bgA1 === s.bgA2 ? s.bgA1
+      : `linear-gradient(${s.bgADir === 'r' ? '135deg' : s.bgADir === 'u' ? '0deg' : '180deg'},${s.bgA1} 0%,${s.bgA2} 100%)`;
+    return `background:${bg}`;
+  }
+  let o = parseFloat(s.bgAOpa);
+  if(!isFinite(o)) o = 70;
+  const C = rgba(s.bgAPat, Math.max(0, Math.min(100, o)) / 100);
+  /* PC 는 실제 px, 모바일은 750 기준 px(= PC 의 2배)를 vw 로 */
+  const u = v => m ? +(v * 2 / (MO_W / 100)).toFixed(3) + 'vw' : v + 'px';
+  const g = u({s: 28, m: 40, l: 56}[s.bgAGap] || 40);
+  const w = m ? u(1) : '1px';       /* 줄 두께 — PC 에서 반픽셀이 되면 선이 끊겨 보인다 */
+  const r = m ? u(1.6) : '1.6px';   /* 도트 반지름 */
+  const d = u(7);                   /* 점선 한 칸 */
+  const line = (deg) => `repeating-linear-gradient(${deg},${C} 0,${C} ${w},transparent ${w},transparent ${g})`;
+  const cut  = (deg) => `repeating-linear-gradient(${deg},transparent 0,transparent ${d},${base} ${d},${base} calc(${d} * 2))`;
+  if(s.bgAKind === 'dot'){
+    const dot = `radial-gradient(circle,${C} 0,${C} ${r},transparent calc(${r} + 0.6px),transparent 100%)`;
+    return `background-color:${base};background-image:${dot},${dot};background-size:${g} ${g};background-position:0 0,calc(${g} / 2) calc(${g} / 2);background-repeat:repeat`;
+  }
+  if(s.bgAKind === 'gd')
+    return `background-color:${base};background-image:${line('180deg')},${line('90deg')};background-repeat:repeat`;
+  const deg = s.bgAKind === 'hl' ? '180deg' : '90deg';
+  const cutDeg = s.bgAKind === 'hl' ? '90deg' : '180deg';
+  const img = s.bgADash ? `${cut(cutDeg)},${line(deg)}` : line(deg);
+  return `background-color:${base};background-image:${img};background-repeat:repeat`;
+}
 function build(mode){
   const s = S, m = mode==='mo', ns = nsOf(s), root = (m?'#evtm-':'#evt-') + ns;
   const mods = activeMods(s);
@@ -3552,11 +3601,8 @@ function build(mode){
   mods.forEach(x => { parts.push(x.render(s, m, {prevId})); prevId = x.id; });
   if(parts.length) parts[parts.length-1] = parts[parts.length-1].replace('class="sec ', 'class="sec end ');
   /* 전체 배경 — 켜면 각 영역의 인라인 배경색을 걷어 내고 루트에 한 번만 칠한다 (그라데이션이 끊기지 않는다) */
-  const bgAll = s.use_bgAll
-    ? (s.bgA1 === s.bgA2 ? s.bgA1
-      : `linear-gradient(${s.bgADir === 'r' ? '135deg' : s.bgADir === 'u' ? '0deg' : '180deg'},${s.bgA1} 0%,${s.bgA2} 100%)`)
-    : '';
-  const css = nsCss(`.rcv{${vars}${bgAll ? `;background:${bgAll}` : ''}}\n` + buildCSS(s, m, mods), ns, root);
+  const bgAll = s.use_bgAll ? bgAllCss(s, m) : '';
+  const css = nsCss(`.rcv{${vars}${bgAll ? ';' + bgAll : ''}}\n` + buildCSS(s, m, mods), ns, root);
   let joined = parts.join('\n');
   if(bgAll) joined = joined.replace(/<[^>]+>/g, tag => tag.replace(/(\sstyle=")([^"]*)"/g, (mm, a2, v) => {
     const kept = v.replace(/background\s*:[^;"]*;?/g, '').trim();
