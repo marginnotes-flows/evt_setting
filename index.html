@@ -1743,7 +1743,7 @@ registerModule({
 .rcv .lb-bk{display:flex;min-width:0;position:relative}
 .rcv .lb-cd .lb-bk{background:var(--lb-cdbg);color:var(--c-lbcd)}
 .rcv .lb-cv{flex:none;display:flex;align-items:flex-start;justify-content:center}
-.rcv .lb-cv a{display:block}
+.rcv .lb-cv a{display:flex;align-items:flex-start;justify-content:center;width:100%;height:100%}
 .rcv .lb-cv img{width:auto;max-width:100%;max-height:100%;filter:drop-shadow(0 7px 18px rgba(18,35,63,.22))}
 .rcv .lb-ce{display:block;width:100%;height:100%;border-radius:4px;background:rgba(0,0,0,.05);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .rcv .lb-tx{flex:1 1 auto;min-width:0}
@@ -4091,6 +4091,171 @@ registerModule({
   fixState(S){
     if(!Array.isArray(S.gfImgs)) S.gfImgs = [];
     S.gfImgs = S.gfImgs.filter(g => !String(g).startsWith('data:'));
+  }
+});
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   [바로가기 버튼]  id: link_buttons
+   눌러서 바깥 페이지로 이동하는 버튼 묶음
+   서브 제목 · 제목 · 영역 설명 + 버튼 목록(한 줄에 하나, 최대 12개)
+   버튼 모양 3가지(채움 / 테두리 / 카드) · 한 줄에 1~3개 · 크기 2단계 · 화살표
+   링크는 모두 새 창(target="_blank" rel="noopener noreferrer")으로 열린다
+   PC 3000px(중앙 1195px 안) · 모바일 750px
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+const LK_MAX = 12;
+const LK_PH = '버튼 문구 | 링크 주소 | 보조 설명(선택)';
+/* 버튼 한 줄 파싱 — 세로줄(|)로 칸을 나눈다 */
+function lkBtns(t){
+  return lines(t).map(l => {
+    const c = String(l).split('|').map(x => x.trim());
+    return {label: c[0] || '', url: c[1] || '', desc: c[2] || ''};
+  }).filter(b => b.label || b.url).slice(0, LK_MAX);
+}
+const lkOk = u => /^https?:\/\//i.test(String(u || '').trim());
+const lkHas = s => lines(s.lkTitle).length > 0 || lines(s.lkSub).length > 0 || paras(s.lkDesc).length > 0 ||
+  lkBtns(s.lkBtns).length > 0;
+function lkBlock(s){
+  const B = lkBtns(s.lkBtns);
+  const bg = s.lkBg1 === s.lkBg2 ? s.lkBg1
+    : `linear-gradient(${s.lkDir === 'r' ? '135deg' : s.lkDir === 'u' ? '0deg' : '180deg'},${s.lkBg1} 0%,${s.lkBg2} 100%)`;
+  const head = `${lines(s.lkSub).length ? `<p class="lk-sub">${lines(s.lkSub).map(esc).join('<br>')}</p>` : ''}
+    ${lines(s.lkTitle).length ? `<h3 class="tt lk-tt">${lines(s.lkTitle).map(esc).join('<br>')}</h3>` : ''}
+    ${paras(s.lkDesc).length ? `<div class="lk-ds">${pHTML(s.lkDesc)}</div>` : ''}`;
+  const items = B.map(b => {
+    const lab = b.label || b.url;
+    const ds = b.desc ? `<span class="lk-d">${esc(b.desc)}</span>` : '';
+    const ar = s.lkArrow ? '<span class="lk-ar" aria-hidden="true">→</span>' : '';
+    const inner = `<span class="lk-w"><span class="lk-l">${md(lab)}</span>${ds}</span>${ar}`;
+    return lkOk(b.url)
+      ? `<a class="lk-b" href="${escA(b.url.trim())}" target="_blank" rel="noopener noreferrer">${inner}</a>`
+      : `<span class="lk-b lk-x">${inner}</span>`;
+  }).join('');
+  const grid = items
+    ? `<div class="lk-gd lk-c${s.lkCols} lk-m${s.lkMo} lk-s${s.lkStyle} lk-z${s.lkSize}">${items}</div>` : '';
+  return `<div class="sec lk" style="background:${bg}"><div class="lk-in">
+  ${head.trim() ? `<div class="lk-top">${head}</div>` : ''}
+  ${grid}
+</div></div>`;
+}
+registerModule({
+  id: 'link_buttons',
+  name: '바로가기 버튼',
+  group: '기타',
+  defaults: {
+    use_lk: true, lkBg1: '#ffffff', lkBg2: '#ffffff', lkDir: 'd', lkC: 'k',
+    lkSub: '', lkTitle: '함께 보면 좋은 곳', lkDesc: '',
+    lkBtns: '이벤트 전체 보기 | https://product.kyobobook.co.kr/ | 이번 달 기획전을 한눈에\n' +
+            '리커버 도서 보러 가기 | https://product.kyobobook.co.kr/ | 교보문고에서만 만나는 표지',
+    lkStyle: 'f', lkCols: '2', lkMo: '1', lkSize: 'm', lkArrow: true,
+    use_lkCol: false, lkCol: '#2f6fed'
+  },
+  schema: {
+    id: 'lk', t: '바로가기 버튼', d: '눌러서 바깥 페이지로 이동하는 버튼이에요. 스위치를 끄거나 내용이 모두 비어 있으면 영역 전체가 빠져요', use: 'use_lk',
+    f: [
+      {t:'row', f:[{t:'color', k:'lkBg1', l:'배경색 ①'}, {t:'color', k:'lkBg2', l:'배경색 ②'}]},
+      {t:'row', f:[
+        {t:'sel', k:'lkDir', l:'그라데이션 방향', o:[['d','위 → 아래'],['u','아래 → 위'],['r','왼쪽 위 → 오른쪽 아래']], h:'두 색을 같게 하면 단색이에요.'},
+        {t:'tc', k:'lkC', l:'글자색'}
+      ]},
+      {t:'area', k:'lkSub', l:'서브 제목', r:2, h:'줄바꿈 = 줄 나눔 · 비워 두면 표시되지 않아요.'},
+      {t:'area', k:'lkTitle', l:'제목', r:2, h:'줄바꿈 = 줄 나눔 · 공통 설정의 제목 색상으로 표시돼요. 비워 두면 표시되지 않아요.'},
+      {t:'area', k:'lkDesc', l:'영역 설명', r:3, h:'빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게 · 비워 두면 표시되지 않아요.'},
+      {t:'area', k:'lkBtns', l:`버튼 목록`, r:6, ph: LK_PH,
+        h:`한 줄에 버튼 하나 · 칸 구분은 세로줄(|) · 최대 ${LK_MAX}개<br>${LK_PH}<br>보조 설명은 비워 두면 버튼 문구만 들어가요. 링크는 <b>https://</b> 로 시작해야 해요.`},
+      {t:'det', l:'버튼 모양 설정', f:[
+        {t:'row', f:[
+          {t:'sel', k:'lkStyle', l:'버튼 모양', o:[['f','채움'],['o','테두리'],['c','카드']], h:'카드는 왼쪽 정렬이라 보조 설명이 길 때 잘 어울려요.'},
+          {t:'sel', k:'lkSize', l:'버튼 크기', o:[['m','보통'],['l','크게']]}
+        ]},
+        {t:'row', f:[
+          {t:'sel', k:'lkCols', l:'PC 한 줄에', o:[['1','1개'],['2','2개'],['3','3개']]},
+          {t:'sel', k:'lkMo', l:'모바일 한 줄에', o:[['1','1개'],['2','2개']], h:'문구가 길면 1개를 권해 드려요.'}
+        ]},
+        {t:'sw', k:'lkArrow', l:'화살표(→) 표시'},
+        {t:'sw', k:'use_lkCol', l:'버튼 색 직접 지정', h:'끄면 공통 설정의 강조 색상을 따라가요.'},
+        {t:'color', k:'lkCol', l:'버튼 색'}
+      ]}
+    ]
+  },
+  has: s => lkHas(s),
+  render: (s, m) => lkBlock(s),
+  vars: s => {
+    const c = s.use_lkCol ? s.lkCol : s.pt;
+    return `--c-lk:${TC[s.lkC]};--lk-bt:${c};--lk-on:${onColor(c)}`;
+  },
+  css: {
+    shared: `
+.rcv .lk-in{margin:0 auto;color:var(--c-lk)}
+.rcv .lk-top{text-align:center}
+.rcv .lk-sub{opacity:.78}
+.rcv .lk-tt{color:var(--pt)}
+.rcv .lk-ds{opacity:.88}
+.rcv .lk-ds b{color:var(--pt)}
+.rcv .lk-ds p+p{margin-top:.7em}
+.rcv .lk-gd{display:grid;justify-content:center}
+.rcv .lk-b{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-family:var(--f-head);font-weight:700;transition:background .18s,border-color .18s,transform .18s}
+.rcv .lk-w{display:block;min-width:0}
+.rcv .lk-l{display:block}
+.rcv .lk-d{display:block;font-family:var(--f-body);font-weight:400;opacity:.78;margin-top:6px}
+.rcv .lk-ar{flex:none;font-weight:400;opacity:.9}
+.rcv .lk-sf .lk-b{background:var(--lk-bt);color:var(--lk-on)}
+.rcv .lk-so .lk-b{background:transparent;color:var(--lk-bt);border:2px solid var(--lk-bt)}
+.rcv .lk-sc .lk-b{background:#fff;color:#1c1c1e;justify-content:space-between;text-align:left}
+.rcv .lk-sc .lk-ar{color:var(--lk-bt);font-weight:700}
+.rcv .lk-x{opacity:.45}
+@media (hover:hover){
+.rcv .lk-sf .lk-b:hover{background:var(--lk-on);color:var(--lk-bt)}
+.rcv .lk-so .lk-b:hover{background:var(--lk-bt);color:var(--lk-on)}
+.rcv .lk-sc .lk-b:hover{transform:translateY(-2px)}
+.rcv .lk-x:hover{background:inherit;color:inherit;transform:none}
+}
+`,
+    pc: `
+.rcv .lk{padding:96px 0 100px}
+.rcv .lk-in{width:1195px;max-width:96%}
+.rcv .lk-sub{font-size:20px;line-height:1.5}
+.rcv .lk-tt{font-size:40px;line-height:1.35;margin-top:14px}
+.rcv .lk-ds{font-size:19px;line-height:1.8;margin-top:22px}
+.rcv .lk-gd{gap:16px;margin-top:44px}
+.rcv .lk-c1{grid-template-columns:minmax(0,520px)}
+.rcv .lk-c2{grid-template-columns:repeat(2,minmax(0,380px))}
+.rcv .lk-c3{grid-template-columns:repeat(3,minmax(0,330px))}
+.rcv .lk-b{border-radius:16px;padding:21px 28px;font-size:20px;line-height:1.4}
+.rcv .lk-zl .lk-b{border-radius:18px;padding:27px 34px;font-size:23px}
+.rcv .lk-d{font-size:16px;line-height:1.5}
+.rcv .lk-zl .lk-d{font-size:17px}
+.rcv .lk-ar{font-size:20px}
+.rcv .lk-sc .lk-b{border-radius:18px;padding:26px 30px;box-shadow:0 4px 16px rgba(18,35,63,.09)}
+.rcv .lk-sc.lk-zl .lk-b{padding:32px 36px}
+`,
+    mo: `
+.rcv .lk{padding:84px 0 88px}
+.rcv .lk-in{width:88%}
+.rcv .lk-sub{font-size:26px;line-height:1.5}
+.rcv .lk-tt{font-size:44px;line-height:1.35;margin-top:18px}
+.rcv .lk-ds{font-size:25px;line-height:1.8;margin-top:26px}
+.rcv .lk-gd{gap:18px;margin-top:48px;grid-template-columns:minmax(0,1fr)}
+.rcv .lk-m2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rcv .lk-b{border-radius:20px;padding:30px 28px;font-size:29px;line-height:1.4}
+.rcv .lk-zl .lk-b{border-radius:22px;padding:36px 30px;font-size:33px}
+.rcv .lk-d{font-size:23px;line-height:1.5;margin-top:8px}
+.rcv .lk-zl .lk-d{font-size:25px}
+.rcv .lk-ar{font-size:28px}
+.rcv .lk-sc .lk-b{border-radius:24px;padding:34px 30px;box-shadow:0 4px 16px rgba(18,35,63,.09)}
+.rcv .lk-sc.lk-zl .lk-b{padding:40px 32px}
+`
+  },
+  validate(s, o){
+    if(!s.use_lk) return;
+    if(!lkHas(s)){ o.push(['i', '바로가기 버튼 영역이 비어 있어 표시되지 않아요.']); return; }
+    const B = lkBtns(s.lkBtns);
+    const bad = B.filter(b => !lkOk(b.url));
+    if(bad.length) o.push(['w', `바로가기 버튼 중 ${bad.length}개의 링크 주소가 비었거나 https:// 로 시작하지 않아 버튼이 눌리지 않아요.`]);
+    const noLabel = B.filter(b => !b.label);
+    if(noLabel.length) o.push(['w', `바로가기 버튼 중 ${noLabel.length}개에 버튼 문구가 없어 링크 주소가 그대로 보여요.`]);
+    if(lines(s.lkBtns).length > LK_MAX) o.push(['i', `바로가기 버튼은 최대 ${LK_MAX}개까지 들어가고 나머지는 빠져요.`]);
   }
 });
 })();
