@@ -1200,12 +1200,9 @@ registerModule({
 (function(){
 const BL_MAX = 40;
 const BL_PH = 'ISBN | 도서명 | 저자 · 출판사 | 한 줄 소개 | 판매상품ID';
-/* 도서 목록 한 줄 파싱 — 세로줄(|)로 칸을 나눈다 */
+/* 도서 목록 한 줄 파싱 — 세로줄(|) 또는 엑셀에서 붙여넣은 탭 (engine 의 bookRow) */
 function blBooks(t){
-  return lines(t).map(l => {
-    const c = String(l).split('|').map(x => x.trim());
-    return {isbn:c[0]||'', title:c[1]||'', auth:c[2]||'', cmt:c[3]||'', pid:c[4]||''};
-  }).filter(b => b.isbn || b.title).slice(0, BL_MAX);
+  return lines(t).map(bookRow).filter(b => b.isbn || b.title).slice(0, BL_MAX);
 }
 function blCover(b){
   const v = String(b.isbn || '').trim();
@@ -1300,7 +1297,7 @@ const SCHEMA = {
       {t:'tc', k:'blCardC', l:'카드 안 글자색'}
     ]},
     {t:'area', k:'blBooks', l:`도서 목록`, r:8, ph: BL_PH,
-      h:`한 줄에 한 권 · 칸 구분은 세로줄(|) <span class="badge">최대 ${BL_MAX}권</span><br>${BL_PH}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.`}
+      h:`한 줄에 한 권 · 칸 구분은 세로줄(|) <span class="badge">최대 ${BL_MAX}권</span><br>${BL_PH}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.<br>엑셀에서 복사한 줄(ISBN · 판매상품ID · 도서명 …)을 그대로 붙여넣어도 돼요. 칸 순서는 달라도 알아서 찾아요.`}
   ]
 };
 const SAMPLE = [
@@ -1646,7 +1643,7 @@ const SCHEMA = {
 SCHEMA.f.find(f => f.t === 'custom').render = () => `<div class="f"><label>도서 <span class="badge">최대 ${LB_MAX}권</span></label>
   <div id="lbList"></div>
   <div class="bar"><button type="button" class="pill" id="lbAdd">도서 추가</button>
-    <span class="hint" style="margin:0">ISBN · 판매상품ID 만 넣으면 표지와 링크가 자동으로 만들어져요.</span></div></div>`;
+    <span class="hint" style="margin:0">ISBN · 판매상품ID 만 넣으면 표지와 링크가 자동으로 만들어져요. 엑셀에서 복사한 줄은 ISBN 칸에 붙여넣으면 한 번에 들어가요.</span></div></div>`;
 function lbChip(x){
   return `표지 ${lbCover(x) ? '✓' : '—'} · 링크 ${lbLink(x) ? '✓' : '—'} · 소개글 ${lbLen(x.body)}자`;
 }
@@ -1660,7 +1657,7 @@ function renderLb(){
       <button type="button" class="mini x" data-lbm="rm:${i}" title="삭제">✕</button></div>
     <div class="row2">
       <div class="f"><label>ISBN</label><input type="text" data-lb="${i}:isbn" value="${escA(x.isbn)}" placeholder="9791194273448">
-        <div class="hint">표지 주소가 자동으로 만들어져요.</div></div>
+        <div class="hint">표지 주소가 자동으로 만들어져요. 엑셀에서 여러 줄을 복사해 이 칸에 붙여넣으면 한 번에 들어가요.</div></div>
       <div class="f"><label>판매상품ID</label><input type="text" data-lb="${i}:pid" value="${escA(x.pid)}" placeholder="S000220568117">
         <div class="hint">상품 링크가 자동으로 만들어져요.</div></div>
     </div>
@@ -1679,6 +1676,27 @@ function renderLb(){
   </div>`).join('') || '<div class="hint" style="margin:0 0 10px">아직 도서가 없어요.</div>';
   const b = $('#lbAdd'); if(b) b.disabled = L.length >= LB_MAX;
 }
+/* 엑셀에서 여러 줄을 복사해 ISBN 칸에 붙여넣으면 그만큼 도서가 생긴다 */
+document.addEventListener('paste', e => {
+  const d = (e.target.dataset || {}).lb; if(!d) return;
+  if(d.split(':')[1] !== 'isbn') return;
+  const rows = bookPasted(e); if(!rows) return;
+  e.preventDefault();
+  const L = S.lbItems; let n = +d.split(':')[0], put = 0;
+  rows.forEach(r => {
+    if(n >= LB_MAX) return;
+    if(!L[n]) L[n] = {isbn:'', pid:'', title:'', auth:'', lead:'', body:'', cover:'', link:''};
+    const x = L[n];
+    if(r.isbn) x.isbn = r.isbn;
+    if(r.pid) x.pid = r.pid;
+    if(r.title) x.title = r.title;
+    if(r.auth) x.auth = r.auth;
+    if(r.cmt) x.lead = r.cmt;
+    n++; put++;
+  });
+  renderLb(); sched();
+  toast(put < rows.length ? `도서 ${put}권을 넣었어요. ${LB_MAX}권까지만 들어가요.` : `엑셀에서 도서 ${put}권을 넣었어요.`);
+});
 let lbT = null;
 document.addEventListener('input', e => {
   const d = (e.target.dataset || {}).lb; if(!d) return;
@@ -1798,7 +1816,7 @@ registerModule({
 .rcv .lb-tt2{font-size:28px;line-height:1.4}
 .rcv .lb-ba{font-size:17px;line-height:1.5;margin-top:10px}
 .rcv .lb-ld{font-size:20px;line-height:1.6;margin-top:20px}
-.rcv .lb-bd{font-size:18px;line-height:1.9;margin-top:18px}
+.rcv .lb-bd{font-size:18px;line-height:1.9;margin-top:18px;text-align:left}
 .rcv .lb-bt2{font-size:16px;padding-top:12px}
 .rcv .lb-dv .lb-bk:not(:last-child){padding-bottom:56px}
 .rcv .lb-dv .lb-bk:not(:last-child)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;opacity:.13}
@@ -1833,7 +1851,7 @@ registerModule({
 .rcv .lb-tt2{font-size:34px;line-height:1.4;margin-top:36px;text-align:center}
 .rcv .lb-ba{font-size:23px;line-height:1.5;margin-top:12px;text-align:center}
 .rcv .lb-ld{font-size:27px;line-height:1.6;margin-top:24px;text-align:center}
-.rcv .lb-bd{font-size:25px;line-height:1.9;margin-top:24px}
+.rcv .lb-bd{font-size:25px;line-height:1.9;margin-top:24px;text-align:center}   /* 모바일은 글 폭이 좁아 가운데가 보기 좋다 */
 .rcv .lb-bt2{font-size:23px;padding-top:16px;text-align:center}
 .rcv .lb-dv .lb-bk:not(:last-child){padding-bottom:64px}
 .rcv .lb-dv .lb-bk:not(:last-child)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;opacity:.13}
@@ -2080,7 +2098,7 @@ const SCHEMA = {
 SCHEMA.f.find(f => f.t === 'custom').render = () => `<div class="f"><label>추천 카드 <span class="badge">최대 ${P1_MAX}개</span></label>
   <div id="p1List"></div>
   <div class="bar"><button type="button" class="pill" id="p1Add">추천 카드 추가</button>
-    <span class="hint" style="margin:0">ISBN · 판매상품ID 만 넣으면 표지와 링크가 자동으로 만들어져요.</span></div></div>`;
+    <span class="hint" style="margin:0">ISBN · 판매상품ID 만 넣으면 표지와 링크가 자동으로 만들어져요. 엑셀에서 복사한 줄은 ISBN 칸에 붙여넣으면 한 번에 들어가요.</span></div></div>`;
 function p1Chip(x){
   const c = p1Cover(x) ? '표지 자동' : '표지 없음', l = p1Link(x) ? '링크 자동' : '링크 없음';
   const n = p1Len(x.rec);
@@ -2102,7 +2120,7 @@ function renderP1(){
       <div class="hint">정사각형(1:1) 이미지를 권장해요. 비우면 빈 자리로 표시돼요.</div></div>
     <div class="row2">
       <div class="f"><label>ISBN</label><input type="text" data-p1="${i}:isbn" value="${escA(x.isbn)}" placeholder="9791194273448">
-        <div class="hint">표지 주소가 자동으로 만들어져요.</div></div>
+        <div class="hint">표지 주소가 자동으로 만들어져요. 엑셀에서 여러 줄을 복사해 이 칸에 붙여넣으면 한 번에 들어가요.</div></div>
       <div class="f"><label>판매상품ID</label><input type="text" data-p1="${i}:pid" value="${escA(x.pid)}" placeholder="S000220568117">
         <div class="hint">상품 링크가 자동으로 만들어져요.</div></div>
     </div>
@@ -2119,6 +2137,26 @@ function renderP1(){
   </div>`).join('') || '<div class="hint" style="margin:0 0 10px">아직 추천 카드가 없어요.</div>';
   const b = $('#p1Add'); if(b) b.disabled = L.length >= P1_MAX;
 }
+/* 엑셀에서 여러 줄을 복사해 ISBN 칸에 붙여넣으면 그만큼 추천 카드가 생긴다 */
+document.addEventListener('paste', e => {
+  const d = (e.target.dataset || {}).p1; if(!d) return;
+  if(d.split(':')[1] !== 'isbn') return;
+  const rows = bookPasted(e); if(!rows) return;
+  e.preventDefault();
+  const L = S.p1Items; let n = +d.split(':')[0], put = 0;
+  rows.forEach(r => {
+    if(n >= P1_MAX) return;
+    if(!L[n]) L[n] = {who:'', role:'', photo:'', isbn:'', pid:'', title:'', auth:'', rec:'', cover:'', link:''};
+    const x = L[n];
+    if(r.isbn) x.isbn = r.isbn;
+    if(r.pid) x.pid = r.pid;
+    if(r.title) x.title = r.title;
+    if(r.auth) x.auth = r.auth;
+    n++; put++;
+  });
+  renderP1(); sched();
+  toast(put < rows.length ? `도서 ${put}권을 넣었어요. 추천 카드는 ${P1_MAX}개까지예요.` : `엑셀에서 도서 ${put}권을 넣었어요.`);
+});
 let p1T = null;
 document.addEventListener('input', e => {
   const d = (e.target.dataset || {}).p1; if(!d) return;
@@ -2389,12 +2427,9 @@ registerModule({
 (function(){
 const PM_MAX = 8, PM_BOOK_MAX = 12;
 const pmPpl = s => Array.isArray(s.pmPpl) ? s.pmPpl : [];
-/* 도서 목록 한 줄 파싱 — 세로줄(|)로 칸을 나눈다 */
+/* 도서 목록 한 줄 파싱 — 세로줄(|) 또는 엑셀에서 붙여넣은 탭 (engine 의 bookRow) */
 function pmBooks(t){
-  return lines(t).map(l => {
-    const c = String(l).split('|').map(x => x.trim());
-    return {isbn:c[0]||'', title:c[1]||'', auth:c[2]||'', cmt:c[3]||'', pid:c[4]||''};
-  }).filter(b => b.isbn || b.title).slice(0, PM_BOOK_MAX);
+  return lines(t).map(bookRow).filter(b => b.isbn || b.title).slice(0, PM_BOOK_MAX);
 }
 function pmCover(b){
   const v = String(b.isbn || '').trim();
@@ -2498,7 +2533,7 @@ const SCHEMA = {
 SCHEMA.f.find(f => f.t === 'custom').render = () => `<div class="f"><label>추천인 <span class="badge">최대 ${PM_MAX}명</span></label>
   <div id="pmList"></div>
   <div class="bar"><button type="button" class="pill" id="pmAdd">추천인 추가</button>
-    <span class="hint" style="margin:0">도서는 한 줄에 한 권씩, 세로줄(|)로 칸을 나눠 주세요.</span></div></div>`;
+    <span class="hint" style="margin:0">도서는 한 줄에 한 권씩 · 엑셀에서 복사해 붙여넣어도 돼요.</span></div></div>`;
 const PM_PH = 'ISBN | 도서명 | 저자 · 출판사 | 한 줄 코멘트 | 판매상품ID';
 function pmChip(p){
   const B = pmBooks(p.books), cov = B.filter(pmCover).length, lk = B.filter(pmLink).length;
@@ -2522,7 +2557,7 @@ function renderPm(){
       <div class="hint">빈 줄 = 문단 나눔 · **문구**로 감싸면 강조 색으로 굵게 · 비워 두면 표시되지 않아요.</div></div>
     <div class="f"><label>추천 도서 <span class="badge">최대 ${PM_BOOK_MAX}권</span></label>
       <textarea data-pm="${i}:books" rows="5" spellcheck="false" placeholder="${escA(PM_PH)}">${esc(p.books)}</textarea>
-      <div class="hint">한 줄에 한 권 · 칸 구분은 세로줄(|)<br>${escA(PM_PH)}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.</div></div>
+      <div class="hint">한 줄에 한 권 · 칸 구분은 세로줄(|)<br>${escA(PM_PH)}<br>ISBN 칸에 표지 주소를, 판매상품ID 칸에 상품 주소를 직접 넣어도 돼요.<br>엑셀에서 복사한 줄(ISBN · 판매상품ID · 도서명 …)을 그대로 붙여넣어도 돼요. 칸 순서는 달라도 알아서 찾아요.</div></div>
   </div>`).join('') || '<div class="hint" style="margin:0 0 10px">아직 추천인이 없어요.</div>';
   const b = $('#pmAdd'); if(b) b.disabled = L.length >= PM_MAX;
 }
@@ -3381,10 +3416,11 @@ const D = {
  "dnBg": "#fff1dc",
  "dnTitle": "디자이너 노트",
  "dnBody": "『월든』의 특별판을 다시 만들게 되어 감회가 새롭다. 이번 특별판을 두고는 고전의 질감을 살릴지, 현대적으로 재해석할지를 두고 의견이 엇갈렸다. 시안은 현대적 감각으로 재구성한 디자인부터 오리지널 일러스트를 복원한 재판본까지 다양하게 준비되었다.\n\n그중 최종적으로 채택된 것은 Henry Altemus사가 1899년에 출간한 보사르 시리즈의 『월든』이다. 보사르 시리즈는 1897년부터 1902년까지 고전 문학 작품을 재간한 컬렉션으로, 권마다 화려하고 독창적인 장정이 특징이다. 이번 『월든』 특별판은 오직 빈티지 서적으로만 접할 수 있던 이 희귀한 보사르 시리즈의 장정을 재현해, 55만 부 돌파를 기념하는 한국어판으로 새롭게 선보인다. 오래된 책의 숨결과 현대의 독서 경험이 한 권 안에서 자연스럽게 이어지기를 바란다.",
- "dnSign": "은행나무출판사 디자이너 이다은"
+ "dnSign": "은행나무출판사 디자이너 이다은",
+ "dnSignBg": "#cde9f9"
 };
 function ntBlock(s, p, divider){
-  return `<div class="sec nt${divider?' nt-d':''}" style="background:${s[p+'Bg']};--c-nt:${TC[s[p+'C']]||TC.k}">${divider?'<div class="dv"></div>':''}
+  return `<div class="sec nt${divider?' nt-d':''}" style="background:${s[p+'Bg']};--c-nt:${TC[s[p+'C']]||TC.k};--nt-hl:${s[p+'SignBg']||'#cde9f9'}">${divider?'<div class="dv"></div>':''}
   <h3 class="tt">${esc(s[p+'Title'])}</h3><div class="bd">${pHTML(s[p+'Body'])}</div>${s[p+'Sign']?`<p class="sg"><span>${esc(s[p+'Sign'])}</span></p>`:''}</div>`;
 }
 
@@ -3402,7 +3438,10 @@ registerModule({
       {t:'color', k:P+'Bg', l:'배경색'},
       {t:'text',  k:P+'Title', l:'제목 (영역명)', h:'여기에 적은 문구가 화면에 영역 제목으로 나와요. 예: 번역가 노트, 서점원 노트'},
       {t:'area',  k:P+'Body', l:'본문', r:9, h:'빈 줄 = 문단 나눔 · 줄바꿈 위치도 그대로 반영돼요.'},
-      {t:'text',  k:P+'Sign', l:'서명'},
+      {t:'row', f:[
+        {t:'text',  k:P+'Sign', l:'서명', h:'비워 두면 표시되지 않아요.'},
+        {t:'color', k:P+'SignBg', l:'서명 형광펜 색', h:'배경색과 같게 두면 형광펜 없이 글자만 나와요.'}
+      ]},
       {t:'tc',    k:P+'C', l:'본문 · 서명 글자색'}
     ]
   },
@@ -3413,7 +3452,7 @@ registerModule({
 .rcv .nt .tt{color:var(--pt)}
 .rcv .nt .bd{color:var(--c-nt);text-align:center}
 .rcv .nt .sg{text-align:center;font-weight:700;color:var(--c-nt)}
-.rcv .nt .sg span{display:inline-block;background:var(--hl,#cde9f9)}
+.rcv .nt .sg span{display:inline-block;background:var(--nt-hl,#cde9f9)}
 `,
     pc: `
 .rcv .nt{padding:112px 0 105px}
@@ -3451,10 +3490,11 @@ const D = {
  "enBg": "#fff1dc",
  "enTitle": "편집자 노트",
  "enBody": "『월든』의 특별판을 다시 만들게 되어 감회가 새롭다. 이번 특별판을 두고는 고전의 질감을 살릴지, 현대적으로 재해석할지를 두고 의견이 엇갈렸다. 시안은 현대적 감각으로 재구성한 디자인부터 오리지널 일러스트를 복원한 재판본까지 다양하게 준비되었다.\n\n오래된 책의 숨결과 현대의 독서 경험이 한 권 안에서 자연스럽게 이어지기를 바란다.",
- "enSign": "은행나무출판사 편집자 OOO"
+ "enSign": "은행나무출판사 편집자 OOO",
+ "enSignBg": "#cde9f9"
 };
 function ntBlock(s, p, divider){
-  return `<div class="sec nt${divider?' nt-d':''}" style="background:${s[p+'Bg']};--c-nt:${TC[s[p+'C']]||TC.k}">${divider?'<div class="dv"></div>':''}
+  return `<div class="sec nt${divider?' nt-d':''}" style="background:${s[p+'Bg']};--c-nt:${TC[s[p+'C']]||TC.k};--nt-hl:${s[p+'SignBg']||'#cde9f9'}">${divider?'<div class="dv"></div>':''}
   <h3 class="tt">${esc(s[p+'Title'])}</h3><div class="bd">${pHTML(s[p+'Body'])}</div>${s[p+'Sign']?`<p class="sg"><span>${esc(s[p+'Sign'])}</span></p>`:''}</div>`;
 }
 
@@ -3472,7 +3512,10 @@ registerModule({
       {t:'color', k:P+'Bg', l:'배경색'},
       {t:'text',  k:P+'Title', l:'제목 (영역명)', h:'여기에 적은 문구가 화면에 영역 제목으로 나와요. 예: 번역가 노트, 서점원 노트'},
       {t:'area',  k:P+'Body', l:'본문', r:9, h:'빈 줄 = 문단 나눔 · 줄바꿈 위치도 그대로 반영돼요.'},
-      {t:'text',  k:P+'Sign', l:'서명'},
+      {t:'row', f:[
+        {t:'text',  k:P+'Sign', l:'서명', h:'비워 두면 표시되지 않아요.'},
+        {t:'color', k:P+'SignBg', l:'서명 형광펜 색', h:'배경색과 같게 두면 형광펜 없이 글자만 나와요.'}
+      ]},
       {t:'tc',    k:P+'C', l:'본문 · 서명 글자색'}
     ]
   },
@@ -3483,7 +3526,7 @@ registerModule({
 .rcv .nt .tt{color:var(--pt)}
 .rcv .nt .bd{color:var(--c-nt);text-align:center}
 .rcv .nt .sg{text-align:center;font-weight:700;color:var(--c-nt)}
-.rcv .nt .sg span{display:inline-block;background:var(--hl,#cde9f9)}
+.rcv .nt .sg span{display:inline-block;background:var(--nt-hl,#cde9f9)}
 `,
     pc: `
 .rcv .nt{padding:112px 0 105px}
@@ -4311,6 +4354,37 @@ const kb = n => n > 1048576 ? (n/1048576).toFixed(1)+'MB' : Math.max(1,Math.roun
 const mix = (a,b,t) => { const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const x=p(a), y=p(b);
   return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join(''); };
 const imgSrc = k => (S[k+'Url']||'').trim();
+/* ── 도서 한 줄 읽기 ───────────────────────────────────────────
+   직접 적을 때는 세로줄(|)로, 엑셀에서 복사해 붙여넣으면 탭으로 칸이 나뉜다.
+   탭으로 들어오면 칸 순서를 가리지 않고 생김새로 알아본다 —
+   숫자만 10자리 이상 = ISBN · S+숫자 = 판매상품ID · http 로 시작 = 주소,
+   나머지 글자는 적힌 순서대로 도서명 → 저자·출판사 → 한 줄 소개 */
+function bookRow(l){
+  const t = String(l == null ? '' : l), tab = t.indexOf('\t') >= 0;
+  const c = (tab ? t.split('\t') : t.split('|')).map(x => x.trim());
+  if(!tab) return {isbn:c[0]||'', title:c[1]||'', auth:c[2]||'', cmt:c[3]||'', pid:c[4]||''};
+  const b = {isbn:'', title:'', auth:'', cmt:'', pid:''}, tx = [];
+  c.forEach(v => {
+    const d = v.replace(/[^0-9]/g, '');
+    if(!b.isbn && d.length >= 10 && d === v.replace(/[-\s]/g, '')) b.isbn = v;
+    else if(!b.pid && /^[Ss]\d{6,}$/.test(v)) b.pid = v;
+    else if(/^https?:\/\//i.test(v)){
+      if(!b.isbn && /\.(jpe?g|png|gif|webp)(\?|$)/i.test(v)) b.isbn = v; else if(!b.pid) b.pid = v;
+    }
+    else tx.push(v);
+  });
+  while(tx.length && !tx[tx.length-1]) tx.pop();
+  b.title = tx[0] || ''; b.auth = tx[1] || ''; b.cmt = tx[2] || '';
+  return b;
+}
+/* 엑셀에서 여러 줄을 복사해 붙여넣었는지 살펴본다 — 맞으면 도서 묶음, 아니면 null */
+function bookPasted(e){
+  const cb = e.clipboardData || window.clipboardData;
+  const t = cb ? (cb.getData('text') || '') : '';
+  if(!/[\t\n\r]/.test(t.trim())) return null;
+  const rows = lines(t).map(bookRow).filter(b => b.isbn || b.pid || b.title);
+  return rows.length ? rows : null;
+}
 /* 투명도 입력칸(0~100, 빈칸이면 기본값) → 0~1 */
 function opa(v, dflt){
   let o = parseFloat(v);
